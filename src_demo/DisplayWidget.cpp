@@ -16,18 +16,17 @@
  * You should have received a copy of the GNU General Public License
  * along with AC3D.  If not, see <http://www.gnu.org/licenses/>.
  */
-#pragma once
-#include <ACStdLib.hpp>
-using namespace ACStdLib;
-using namespace ACStdLib::UI;
-using namespace ACStdLib::Rendering;
+//Class header
+#include "DisplayWidget.hpp"
+//Namespaces
+using namespace ACStdLib::Math;
 
-class CDisplayWidget : public C3DView
+//Constructor
+DisplayWidget::DisplayWidget(WidgetContainer *parent) : RenderTargetWidget(parent)
 {
-public:
-    //Constructor
-    CDisplayWidget(AWidgetContainer *pParent);
+}
 
-    //Destructor
-    ~CDisplayWidget();
-};
+//Destructor
+DisplayWidget::~DisplayWidget()
+{
+}

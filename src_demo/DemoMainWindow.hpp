@@ -20,21 +20,21 @@
 using namespace ACStdLib;
 using namespace ACStdLib::UI;
 //Local
-#include "CDisplayWidget.h"
+#include "DisplayWidget.hpp"
 
-class CDemoMainWindow : public CMainWindow
+class DemoMainWindow : public MainAppWindow
 {
 private:
     //Members
-    CDisplayWidget *p3DView;
+    DisplayWidget *displayWidget;
 
 public:
     //Constructor
-    CDemoMainWindow();
+    DemoMainWindow();
 
     //Inline
     inline void Update()
     {
-        this->p3DView->Repaint();
+        this->displayWidget->Repaint();
     }
 };

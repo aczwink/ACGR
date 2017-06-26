@@ -17,10 +17,13 @@
  * along with AC3D.  If not, see <http://www.gnu.org/licenses/>.
  */
 //Class header
-#include "CDemoMainWindow.h"
+#include "DemoMainWindow.hpp"
 
 //Constructor
-CDemoMainWindow::CDemoMainWindow()
+DemoMainWindow::DemoMainWindow()
 {
-    this->p3DView = new CDisplayWidget(this);
+    this->SetTitle("AC3D Demo");
+
+    this->SetLayout(new HorizontalLayout);
+    this->displayWidget = new DisplayWidget(this);
 }

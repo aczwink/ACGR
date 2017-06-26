@@ -17,23 +17,17 @@
  * along with AC3D.  If not, see <http://www.gnu.org/licenses/>.
  */
 //Local
-#include "CDemoMainWindow.h"
+#include "DemoMainWindow.hpp"
 
-//Global Variables
-CDemoMainWindow *g_pMainWindow;
-
-int32 Main(const CString &refProgramName, const CLinkedList<CString> &refArgs)
+int32 Main(const String &programName, const LinkedList<String> &args)
 {
-    int32 exitCode;
+    DemoMainWindow *mainWindow = new DemoMainWindow;
 
-    g_pMainWindow = new CDemoMainWindow;
+	mainWindow->Show();
 
-    g_pMainWindow->Show();
+	while(EventQueue::ProcessPendingEvents())
+		mainWindow->Update(); //application is idle.. repaint window
+	EventQueue::ProcessEvents();
 
-    while(CEventQueue::ProcessPendingEvents(exitCode))
-    {
-        g_pMainWindow->Update(); //application is idle.. repaint window
-    }
-
-    return exitCode;
+	return EXIT_SUCCESS;
 }
