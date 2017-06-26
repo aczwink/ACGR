@@ -1,2 +1,2 @@
-# AC3D
-A 3D graphics rendering library
+# ACGR
+A collection of graphic renderers for rendering 3D scenes
