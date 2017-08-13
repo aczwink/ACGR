@@ -16,19 +16,33 @@
  * You should have received a copy of the GNU General Public License
  * along with ACGR.  If not, see <http://www.gnu.org/licenses/>.
  */
-//Local
-#include "DemoMainWindow.hpp"
+#pragma once
+#include <ACStdLib.hpp>
 
-int32 Main(const String &programName, const LinkedList<String> &args)
+namespace ACGR
 {
-	EventQueue &eventQueue = EventQueue::GetGlobalQueue();
+	//Forward declarations
+	class Camera;
+	class Light;
+	class Mesh;
+	class SceneManager;
 
-    DemoMainWindow *mainWindow = new DemoMainWindow;
+	enum class RendererType
+	{
+		Device,
+		RayTracer
+	};
 
-	mainWindow->Show();
+	class Renderer
+	{
+	public:
+		//Destructor
+		virtual ~Renderer() {}
 
-	while(eventQueue.ProcessEvents(false))
-		mainWindow->Update(); //application is idle.. repaint window
+		//Abstract
+		virtual void RenderFrame(const SceneManager &sceneManager, const Camera &camera) = 0;
 
-	return EXIT_SUCCESS;
+		//Functions
+		static Renderer *CreateInstance(RendererType type, ACStdLib::Rendering::DeviceContext &deviceContext);
+	};
 }

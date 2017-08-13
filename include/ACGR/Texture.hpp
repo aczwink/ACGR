@@ -16,19 +16,45 @@
  * You should have received a copy of the GNU General Public License
  * along with ACGR.  If not, see <http://www.gnu.org/licenses/>.
  */
-//Local
-#include "DemoMainWindow.hpp"
+#pragma once
 
-int32 Main(const String &programName, const LinkedList<String> &args)
+namespace ACGR
 {
-	EventQueue &eventQueue = EventQueue::GetGlobalQueue();
+	enum ETextureFormat
+	{
+		TEXTURE_FORMAT_DXT1,
+		TEXTURE_FORMAT_DXT5
+	};
 
-    DemoMainWindow *mainWindow = new DemoMainWindow;
+	class Texture
+	{
+	public:
+		//Inline
+		inline const void *GetData() const
+		{
+			return this->pBuffer;
+		}
 
-	mainWindow->Show();
+		inline ETextureFormat GetFormat() const
+		{
+			return this->textureFormat;
+		}
 
-	while(eventQueue.ProcessEvents(false))
-		mainWindow->Update(); //application is idle.. repaint window
+		inline uint16 GetHeight() const
+		{
+			return this->height;
+		}
 
-	return EXIT_SUCCESS;
+		inline uint16 GetWidth() const
+		{
+			return this->width;
+		}
+
+	private:
+		//Members
+		uint16 width;
+		uint16 height;
+		void *pBuffer;
+		ETextureFormat textureFormat;
+	};
 }

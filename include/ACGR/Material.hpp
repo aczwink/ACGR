@@ -17,18 +17,24 @@
  * along with ACGR.  If not, see <http://www.gnu.org/licenses/>.
  */
 //Local
-#include "DemoMainWindow.hpp"
+#include "Texture.hpp"
 
-int32 Main(const String &programName, const LinkedList<String> &args)
+namespace ACGR
 {
-	EventQueue &eventQueue = EventQueue::GetGlobalQueue();
+	class Material
+	{
+	public:
+		//Members
+		bool useAlphaBlending;
 
-    DemoMainWindow *mainWindow = new DemoMainWindow;
+		//Inline
+		inline const Texture *GetTexture() const
+		{
+			return this->pTexture;
+		}
 
-	mainWindow->Show();
-
-	while(eventQueue.ProcessEvents(false))
-		mainWindow->Update(); //application is idle.. repaint window
-
-	return EXIT_SUCCESS;
+	private:
+		//Members
+		Texture *pTexture;
+	};
 }

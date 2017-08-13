@@ -16,19 +16,38 @@
  * You should have received a copy of the GNU General Public License
  * along with ACGR.  If not, see <http://www.gnu.org/licenses/>.
  */
-//Local
-#include "DemoMainWindow.hpp"
-
-int32 Main(const String &programName, const LinkedList<String> &args)
+namespace ACGR
 {
-	EventQueue &eventQueue = EventQueue::GetGlobalQueue();
+	enum class ELightType
+	{
+		Directional,
+		Point,
+		Spot
+	};
 
-    DemoMainWindow *mainWindow = new DemoMainWindow;
+	class Light
+	{
+	public:
+		//Members
+		ELightType type;
+		ACStdLib::Math::Vector3 direction; //For directional and Spotlight
+		ACStdLib::Math::Vector3 position; //For Point and Spotlight
+		ACStdLib::Math::Vector3 color;
+		float32 power;
+		ACStdLib::Degree openingAngle; //For Spotlight
+		ACStdLib::Degree innerConeAngle; //For Spotlight
 
-	mainWindow->Show();
+		//Constructor
+		inline Light()
+		{
+			this->type = ELightType::Point;
+			this->power = 1;
+		}
 
-	while(eventQueue.ProcessEvents(false))
-		mainWindow->Update(); //application is idle.. repaint window
-
-	return EXIT_SUCCESS;
+		//Inline
+		inline void LookAt(const ACStdLib::Math::Vector3 &refTarget)
+		{
+			this->direction = refTarget - this->position;
+		}
+	};
 }

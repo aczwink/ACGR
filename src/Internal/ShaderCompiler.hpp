@@ -16,19 +16,28 @@
  * You should have received a copy of the GNU General Public License
  * along with ACGR.  If not, see <http://www.gnu.org/licenses/>.
  */
-//Local
-#include "DemoMainWindow.hpp"
+#pragma once
+#include <ACStdLib.hpp>
+using namespace ACStdLib;
+using namespace ACStdLib::Rendering;
 
-int32 Main(const String &programName, const LinkedList<String> &args)
+class ShaderCompiler
 {
-	EventQueue &eventQueue = EventQueue::GetGlobalQueue();
+public:
+	//Constructor
+	inline ShaderCompiler(DeviceContext &deviceContext) : deviceContext(deviceContext)
+	{
+	}
 
-    DemoMainWindow *mainWindow = new DemoMainWindow;
+	//Destructor
+	~ShaderCompiler();
 
-	mainWindow->Show();
+	//Methods
+	ShaderProgram *FetchStaticProgram(const String &refName);
 
-	while(eventQueue.ProcessEvents(false))
-		mainWindow->Update(); //application is idle.. repaint window
+private:
+	//Members
+	Map<String, ShaderProgram *> staticPrograms;
 
-	return EXIT_SUCCESS;
-}
+	DeviceContext &deviceContext;
+};

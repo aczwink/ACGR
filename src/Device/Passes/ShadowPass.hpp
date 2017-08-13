@@ -16,19 +16,41 @@
  * You should have received a copy of the GNU General Public License
  * along with ACGR.  If not, see <http://www.gnu.org/licenses/>.
  */
+#pragma once
+#include <ACStdLib.hpp>
 //Local
-#include "DemoMainWindow.hpp"
+#include <ACGR/SceneNode.hpp>
+//Namespaces
+using namespace ACStdLib;
+using namespace ACStdLib::Math;
+using namespace ACStdLib::Rendering;
 
-int32 Main(const String &programName, const LinkedList<String> &args)
+namespace ACGR
 {
-	EventQueue &eventQueue = EventQueue::GetGlobalQueue();
+	//Forward declarations
+	class DeviceRenderer;
+	struct SLightInfo;
 
-    DemoMainWindow *mainWindow = new DemoMainWindow;
+	class ShadowPass
+	{
+	public:
+		//Constructor
+		ShadowPass(DeviceRenderer &refRenderer);
 
-	mainWindow->Show();
+		//Destructor
+		~ShadowPass();
 
-	while(eventQueue.ProcessEvents(false))
-		mainWindow->Update(); //application is idle.. repaint window
+		//Methods
+		void RenderDepthMap(SLightInfo &refLightInfo, const SceneNode &refNode, const Matrix4x4 &refM);
 
-	return EXIT_SUCCESS;
+	private:
+		//Members
+		ShaderProgram *pShadowProgram;
+		IFrameBuffer *pFrameBuffer;
+
+		DeviceRenderer &refRenderer;
+
+		//Methods
+		void RenderNode(const SceneNode &refNode, const Matrix4x4 &refM);
+	};
 }

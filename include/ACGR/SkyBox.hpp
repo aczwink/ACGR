@@ -16,19 +16,33 @@
  * You should have received a copy of the GNU General Public License
  * along with ACGR.  If not, see <http://www.gnu.org/licenses/>.
  */
-//Local
-#include "DemoMainWindow.hpp"
+#pragma once
 
-int32 Main(const String &programName, const LinkedList<String> &args)
+namespace ACGR
 {
-	EventQueue &eventQueue = EventQueue::GetGlobalQueue();
+	//Forward declarations
+	class Texture;
 
-    DemoMainWindow *mainWindow = new DemoMainWindow;
+	class SkyBox
+	{
+	public:
+		//Members
+		Texture *pLeft;
+		Texture *pRight;
+		Texture *pBottom;
+		Texture *pTop;
+		Texture *pBack;
+		Texture *pFront;
 
-	mainWindow->Show();
-
-	while(eventQueue.ProcessEvents(false))
-		mainWindow->Update(); //application is idle.. repaint window
-
-	return EXIT_SUCCESS;
+		//Constructor
+		inline SkyBox()
+		{
+			this->pLeft = nullptr;
+			this->pRight = nullptr;
+			this->pBottom = nullptr;
+			this->pTop = nullptr;
+			this->pBack = nullptr;
+			this->pFront = nullptr;
+		}
+	};
 }

@@ -16,19 +16,35 @@
  * You should have received a copy of the GNU General Public License
  * along with ACGR.  If not, see <http://www.gnu.org/licenses/>.
  */
+#include <ACStdLib.hpp>
 //Local
-#include "DemoMainWindow.hpp"
+#include "Mesh.hpp"
 
-int32 Main(const String &programName, const LinkedList<String> &args)
+namespace ACGR
 {
-	EventQueue &eventQueue = EventQueue::GetGlobalQueue();
+	class Entity
+	{
+	public:
+		//Constructor
+		Entity(const ACStdLib::ByteString &refResource);
 
-    DemoMainWindow *mainWindow = new DemoMainWindow;
+		//Methods
+		void SetMaterial(const ACStdLib::ByteString &refResource);
 
-	mainWindow->Show();
+		//Inline
+		inline const Material *GetMaterial() const
+		{
+			return this->pMaterial;
+		}
 
-	while(eventQueue.ProcessEvents(false))
-		mainWindow->Update(); //application is idle.. repaint window
+		inline const Mesh *GetMesh() const
+		{
+			return this->pMesh;
+		}
 
-	return EXIT_SUCCESS;
+	private:
+		//Members
+		Mesh *pMesh;
+		Material *pMaterial;
+	};
 }

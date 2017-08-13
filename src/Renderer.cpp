@@ -16,19 +16,24 @@
  * You should have received a copy of the GNU General Public License
  * along with ACGR.  If not, see <http://www.gnu.org/licenses/>.
  */
+//Class header
+#include <ACGR/Renderer.hpp>
 //Local
-#include "DemoMainWindow.hpp"
+#include "Device/DeviceRenderer.hpp"
+//Namespaces
+using namespace ACGR;
 
-int32 Main(const String &programName, const LinkedList<String> &args)
+//Global functions
+Renderer *Renderer::CreateInstance(RendererType type, ACStdLib::Rendering::DeviceContext &deviceContext)
 {
-	EventQueue &eventQueue = EventQueue::GetGlobalQueue();
+	switch(type)
+	{
+		case RendererType::Device:
+			return new DeviceRenderer(deviceContext);
+		case RendererType::RayTracer:
+			NOT_IMPLEMENTED_ERROR;
+			//return new CRayTraceRenderer(deviceContext);
+	}
 
-    DemoMainWindow *mainWindow = new DemoMainWindow;
-
-	mainWindow->Show();
-
-	while(eventQueue.ProcessEvents(false))
-		mainWindow->Update(); //application is idle.. repaint window
-
-	return EXIT_SUCCESS;
+	return nullptr;
 }

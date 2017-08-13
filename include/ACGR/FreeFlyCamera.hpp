@@ -17,18 +17,11 @@
  * along with ACGR.  If not, see <http://www.gnu.org/licenses/>.
  */
 //Local
-#include "DemoMainWindow.hpp"
+#include "Camera.hpp"
 
-int32 Main(const String &programName, const LinkedList<String> &args)
+namespace ACGR
 {
-	EventQueue &eventQueue = EventQueue::GetGlobalQueue();
-
-    DemoMainWindow *mainWindow = new DemoMainWindow;
-
-	mainWindow->Show();
-
-	while(eventQueue.ProcessEvents(false))
-		mainWindow->Update(); //application is idle.. repaint window
-
-	return EXIT_SUCCESS;
+	class FreeFlyCamera : public Camera
+	{
+	};
 }
