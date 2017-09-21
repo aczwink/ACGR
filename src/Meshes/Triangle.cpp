@@ -16,12 +16,28 @@
  * You should have received a copy of the GNU General Public License
  * along with ACGR.  If not, see <http://www.gnu.org/licenses/>.
  */
-//Local
-#include "Camera.hpp"
+//Class header
+#include <ACGR/Meshes/Primitives.hpp>
+//Namespaces
+using namespace ACGR;
 
-namespace ACGR
+static const Mesh::Vertex g_trianglePositions[] =
 {
-	class FreeFlyCamera : public Camera
-	{
-	};
+	{{0, 0.5f, 0}, {0, 0, 1}, {0.5f, 0}}, //top
+	{{-0.5f, -0.5f, 0},{0, 0, 1}, {0, 1}}, //left bottom
+	{{0.5f, -0.5f, 0},{0, 0, 1}, {1, 1}}, //right bottom
+};
+
+static const uint16 g_triangleIndices[] =
+{
+	0, 1, 2
+};
+
+//Constructor
+Triangle::Triangle()
+{
+	this->SetIndices(3, g_triangleIndices);
+	this->SetVertices(3, g_trianglePositions);
+
+	this->ComputeBBox();
 }

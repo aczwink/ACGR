@@ -16,28 +16,33 @@
  * You should have received a copy of the GNU General Public License
  * along with ACGR.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <ACStdLib.hpp>
-using namespace ACStdLib;
-using namespace ACStdLib::UI;
-//Local
-#include "DisplayWidget.hpp"
+const char shader_normals_vs[] = R"(
+#version 330 core
+#extension GL_ARB_explicit_uniform_location : require
 
-class DemoMainWindow : public MainAppWindow
+//Uniforms
+layout (location = 0) uniform mat4 model;
+layout (location = 1) uniform mat4 MVP;
+uniform mat4 view; //TODO: location?
+uniform mat4 projection; //TODO: location?
+
+//Inputs
+layout (location = 0) in vec3 vertexPosition;
+layout (location = 1) in vec3 vertexNormal;
+
+//Output
+out VS_OUT
 {
-public:
-    //Constructor
-    DemoMainWindow();
+	vec3 normal;
+} vs_out;
 
-    //Inline
-    inline void Update()
-    {
-        this->displayWidget->Repaint();
-    }
+void main()
+{
+	mat3 normalMatrix;
 
-private:
-    //Members
-    DisplayWidget *displayWidget;
+	normalMatrix = mat3(transpose(inverse(view * model)));
 
-    //Methods
-	void SetupChildren();
-};
+	gl_Position = MVP * vec4(vertexPosition, 1);
+	vs_out.normal = normalize(vec3(projection * vec4(normalMatrix * vertexNormal, 1.0)));
+}
+)";

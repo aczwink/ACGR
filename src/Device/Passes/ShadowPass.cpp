@@ -20,13 +20,15 @@
 #include "ShadowPass.hpp"
 //Local
 #include "../DeviceRenderer.hpp"
+//Shaders
+#include "../../../shaders/Shadow.h"
 //Namespaces
 using namespace ACGR;
 
 //Constructor
 ShadowPass::ShadowPass(DeviceRenderer &refRenderer) : refRenderer(refRenderer)
 {
-	this->pShadowProgram = this->refRenderer.GetShaderCompiler().FetchStaticProgram("Shadow");
+	this->pShadowProgram = this->refRenderer.GetShaderCompiler().CompileStaticProgram(SHADER_ARGS(shadow));
 
 	this->pFrameBuffer = this->refRenderer.GetDeviceContext().CreateFrameBuffer();
 

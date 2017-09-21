@@ -16,28 +16,29 @@
  * You should have received a copy of the GNU General Public License
  * along with ACGR.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <ACStdLib.hpp>
-using namespace ACStdLib;
-using namespace ACStdLib::UI;
 //Local
-#include "DisplayWidget.hpp"
+#include "../Mesh.hpp"
 
-class DemoMainWindow : public MainAppWindow
+namespace ACGR
 {
-public:
-    //Constructor
-    DemoMainWindow();
+	class Icosahedron : public Mesh
+	{
+	public:
+		//Constructor
+		Icosahedron();
+	};
 
-    //Inline
-    inline void Update()
-    {
-        this->displayWidget->Repaint();
-    }
+	class Plane : public Mesh
+	{
+	public:
+		//Constructor
+		Plane();
+	};
 
-private:
-    //Members
-    DisplayWidget *displayWidget;
-
-    //Methods
-	void SetupChildren();
-};
+	class Triangle : public Mesh
+	{
+	public:
+		//Constructor
+		Triangle();
+	};
+}

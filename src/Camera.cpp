@@ -40,11 +40,6 @@ Matrix4x4 Camera::GetPerspectiveMatrix() const
 	return Matrix4x4::PerspectiveRH(this->fieldOfViewY, this->aspectRatio, this->nearPlane, this->farPlane);
 }
 
-Matrix4x4 Camera::GetViewMatrix() const
-{
-	return this->GetOrientation() * Matrix4x4::Translation(-this->position);
-}
-
 void Camera::SetViewDirection(const Vector3 &refDir)
 {
 	Vector3 dirNormalized;
@@ -63,11 +58,6 @@ void Camera::SetViewDirection(const Vector3 &refDir)
 }
 
 //Private methods
-Matrix4x4 Camera::GetOrientation() const
-{
-	return Matrix4x4::RotationYawPitchRoll(this->horzAngle, this->vertAngle, 0);
-}
-
 void Camera::NormalizeAngles()
 {
 	this->horzAngle.value = fmod(this->horzAngle.value, 360.0f);

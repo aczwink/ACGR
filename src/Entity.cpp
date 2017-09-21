@@ -16,28 +16,8 @@
  * You should have received a copy of the GNU General Public License
  * along with ACGR.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <ACStdLib.hpp>
+//Class Header
+#include <ACGR/Entity.hpp>
+//Namespaces
 using namespace ACStdLib;
-using namespace ACStdLib::UI;
-//Local
-#include "DisplayWidget.hpp"
-
-class DemoMainWindow : public MainAppWindow
-{
-public:
-    //Constructor
-    DemoMainWindow();
-
-    //Inline
-    inline void Update()
-    {
-        this->displayWidget->Repaint();
-    }
-
-private:
-    //Members
-    DisplayWidget *displayWidget;
-
-    //Methods
-	void SetupChildren();
-};
+using namespace ACGR;

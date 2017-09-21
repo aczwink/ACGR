@@ -16,6 +16,11 @@
  * You should have received a copy of the GNU General Public License
  * along with ACGR.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <ACGR/FreeFlyCamera.hpp>
-#include "ACGR/Renderer.hpp"
-#include "ACGR/SceneManager.hpp"
+#include <ACGR/Cameras/FreeFlyCamera.hpp>
+#include <ACGR/Material.hpp>
+#include <ACGR/Renderer.hpp>
+#include <ACGR/SceneManager.hpp>
+
+//Meshes
+#include <ACGR/Meshes/Primitives.hpp>
+#include <ACGR/Meshes/Procedural.hpp>

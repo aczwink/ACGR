@@ -16,6 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with ACGR.  If not, see <http://www.gnu.org/licenses/>.
  */
+#pragma once
 //Local
 #include "Texture.hpp"
 
@@ -25,16 +26,24 @@ namespace ACGR
 	{
 	public:
 		//Members
+		ACStdLib::Math::Vector3 diffuseColor;
 		bool useAlphaBlending;
+
+		//Constructor
+		inline Material()
+		{
+			this->useAlphaBlending = false;
+			this->texture = nullptr;
+		}
 
 		//Inline
 		inline const Texture *GetTexture() const
 		{
-			return this->pTexture;
+			return this->texture;
 		}
 
 	private:
 		//Members
-		Texture *pTexture;
+		Texture *texture;
 	};
 }

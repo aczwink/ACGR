@@ -35,23 +35,22 @@ namespace ACGR
 		~SceneManager();
 
 		//Methods
-		void Load(ACStdLib::InputStream &refInput);
 		void SetSkyBox(const ACStdLib::ByteString &refResource);
 
 		//Inline
 		inline ACStdLib::Map<Light *, SceneNode *> GetLights() const
 		{
-			return this->pSceneGraphRoot->GetLights();
+			return this->sceneGraphRoot->GetLights();
 		}
 
 		inline SceneNode *GetRootNode()
 		{
-			return this->pSceneGraphRoot;
+			return this->sceneGraphRoot;
 		}
 
 		inline const SceneNode *GetRootNode() const
 		{
-			return this->pSceneGraphRoot;
+			return this->sceneGraphRoot;
 		}
 
 		inline const SkyBox &GetSkyBox() const
@@ -59,9 +58,17 @@ namespace ACGR
 			return this->skyBox;
 		}
 
+		inline void SetRootNode(SceneNode *node)
+		{
+			if(this->sceneGraphRoot)
+				delete this->sceneGraphRoot;
+
+			this->sceneGraphRoot = node;
+		}
+
 	private:
 		//Members
-		SceneNode *pSceneGraphRoot;
+		SceneNode *sceneGraphRoot;
 		SkyBox skyBox;
 	};
 }

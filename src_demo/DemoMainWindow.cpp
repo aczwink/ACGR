@@ -24,6 +24,40 @@ DemoMainWindow::DemoMainWindow()
 {
     this->SetTitle("AC3D Demo");
 
-    this->SetLayout(new HorizontalLayout);
-    this->displayWidget = new DisplayWidget(this);
+	this->SetupChildren();
+}
+
+//Private methods
+void DemoMainWindow::SetupChildren()
+{
+	this->SetLayout(new HorizontalLayout);
+	this->displayWidget = new DisplayWidget(this);
+
+	//settings panel
+	GroupBox *pSettingsGroup = new GroupBox(this);
+	pSettingsGroup->SetText("Settings");
+
+	PushButton *rayTraceButton = new PushButton(pSettingsGroup);
+	rayTraceButton->SetText("Raytrace");
+	rayTraceButton->onActivatedHandler = [p3DView = this->displayWidget]()
+	{
+		Clock c;
+		c.Start();
+		p3DView->RayTrace();
+		stdOut << "Raytracing took " << c.GetElapsedMicroseconds() / 1000000.0 << " seconds." << endl;
+	};
+
+	CheckBox *checkBox = new CheckBox(pSettingsGroup);
+	checkBox->SetText("Toggle wireframe");
+	checkBox->onToggledHandler = [p3DView = this->displayWidget, checkBox]()
+	{
+		p3DView->SetWireFrame(checkBox->IsChecked());
+	};
+
+	checkBox = new CheckBox(pSettingsGroup);
+	checkBox->SetText("Toggle debug mode");
+	checkBox->onToggledHandler = [p3DView = this->displayWidget, checkBox]()
+	{
+		p3DView->SetDebugMode(checkBox->IsChecked());
+	};
 }

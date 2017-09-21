@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Scene ambientLight="1, 1, 1">
+  <!--Cameras-->
+  <Camera position="0, 0, 0" direction="0, 0, -1" fovy="45°" />
+
+  <!--Lights-->
+  <Light type="directional" direction="0, -1, 0" diffuseColor="0.8, 0.8, 0.8" power="0.5" />
+  
+  <!--Spheres-->
+  <Node scale="0.1, 0.1, 0.1" translate="-3, -3.5, -3">
+    <Entity material="cornell_box_grey">Sphere</Entity>
+  </Node>
+  <Node scale="0.1, 0.1, 0.1" translate="2, -3.5, -1">
+    <Entity material="cornell_box_grey">Sphere</Entity>
+  </Node>
+
+  <!--Box-->
+  <!--Front (pos z), Back, Left, Right, Bottom, Top-->
+  <!--
+  <Node translate="0, 0, -0.5" rotate_ypr="180, 0, 0">
+    <Entity material="cornell_box_grey">Plane</Entity>
+  </Node>
+  -->
+  <Node translate="0, 0, -0.5">
+    <Entity material="cornell_box_grey">Plane</Entity>
+  </Node>
+  <Node translate="0, 0, -0.5" rotate_ypr="90, 0, 0">
+    <Entity material="cornell_box_red">Plane</Entity>
+  </Node>
+  <Node translate="0, 0, -0.5" rotate_ypr="-90, 0, 0">
+    <Entity material="cornell_box_blue">Plane</Entity>
+  </Node>
+  <Node translate="0, 0, -0.5" rotate_ypr="0, -90, 0">
+    <Entity material="cornell_box_green">Plane</Entity>
+  </Node>
+  <Node translate="0, 0, -0.5" rotate_ypr="0, 90, 0">
+    <Entity material="cornell_box_green">Plane</Entity>
+  </Node>
+</Scene>

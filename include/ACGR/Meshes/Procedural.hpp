@@ -16,28 +16,15 @@
  * You should have received a copy of the GNU General Public License
  * along with ACGR.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <ACStdLib.hpp>
-using namespace ACStdLib;
-using namespace ACStdLib::UI;
 //Local
-#include "DisplayWidget.hpp"
+#include "../Mesh.hpp"
 
-class DemoMainWindow : public MainAppWindow
+namespace ACGR
 {
-public:
-    //Constructor
-    DemoMainWindow();
-
-    //Inline
-    inline void Update()
-    {
-        this->displayWidget->Repaint();
-    }
-
-private:
-    //Members
-    DisplayWidget *displayWidget;
-
-    //Methods
-	void SetupChildren();
-};
+	class IcoSphere : public Mesh
+	{
+	public:
+		//Constructor
+		IcoSphere(uint8 nSubdivisions);
+	};
+}

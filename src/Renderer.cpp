@@ -20,6 +20,7 @@
 #include <ACGR/Renderer.hpp>
 //Local
 #include "Device/DeviceRenderer.hpp"
+#include "RayTracer/RayTraceRenderer.hpp"
 //Namespaces
 using namespace ACGR;
 
@@ -31,8 +32,7 @@ Renderer *Renderer::CreateInstance(RendererType type, ACStdLib::Rendering::Devic
 		case RendererType::Device:
 			return new DeviceRenderer(deviceContext);
 		case RendererType::RayTracer:
-			NOT_IMPLEMENTED_ERROR;
-			//return new CRayTraceRenderer(deviceContext);
+			return new RayTraceRenderer(deviceContext);
 	}
 
 	return nullptr;

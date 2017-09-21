@@ -118,9 +118,6 @@ namespace ACGR
 		ACStdLib::LinkedList<Light *> attachedLights;
 
 		//Methods
-		void Deserialize(const ACStdLib::XML::CElement &refElement);
 		void GetLights(ACStdLib::Map<Light *, SceneNode *> &refResult);
-		float64 ParseAngle(const ACStdLib::String &refString);
-		void ParseRotation(const ACStdLib::XML::CElement &refElement);
 	};
 }

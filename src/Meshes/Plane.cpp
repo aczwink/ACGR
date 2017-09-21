@@ -16,28 +16,33 @@
  * You should have received a copy of the GNU General Public License
  * along with ACGR.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <ACStdLib.hpp>
-using namespace ACStdLib;
-using namespace ACStdLib::UI;
-//Local
-#include "DisplayWidget.hpp"
+//Class header
+#include <ACGR/Meshes/Primitives.hpp>
+//Namespaces
+using namespace ACGR;
 
-class DemoMainWindow : public MainAppWindow
+static const Mesh::Vertex g_planePositions[] =
 {
-public:
-    //Constructor
-    DemoMainWindow();
+	//left
+	{{-0.5f, 0.5f, 0}, {0, 0, 1}, {0, 1}}, //top
+	{{-0.5f, -0.5f, 0}, {0, 0, 1}, {0, 0}}, //bottom
 
-    //Inline
-    inline void Update()
-    {
-        this->displayWidget->Repaint();
-    }
-
-private:
-    //Members
-    DisplayWidget *displayWidget;
-
-    //Methods
-	void SetupChildren();
+	//right
+	{{0.5f, 0.5f, 0}, {0, 0, 1}, {1, 1}}, //top
+	{{0.5f, -0.5f, 0}, {0, 0, 1}, {1, 0}} //bottom
 };
+
+static const uint16 g_planeIndices[] =
+{
+	0, 1, 3, //lower
+	0, 3, 2, //upper
+};
+
+//Constructor
+Plane::Plane()
+{
+	this->SetIndices(6, g_planeIndices);
+	this->SetVertices(4, g_planePositions);
+
+	this->ComputeBBox();
+}

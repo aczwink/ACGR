@@ -31,18 +31,50 @@ namespace ACGR
 
 		//Methods
 		ACStdLib::Math::Matrix4x4 GetPerspectiveMatrix() const;
-		ACStdLib::Math::Matrix4x4 GetViewMatrix() const;
 		void SetViewDirection(const ACStdLib::Math::Vector3 &refDir);
 
 		//Inline
+		inline ACStdLib::Math::Vector3 GetForwardDirection() const
+		{
+			return this->GetInverseOrientation() * ACStdLib::Math::Vector4(0, 0, 1, 1);
+		}
+
+		inline ACStdLib::Math::Matrix4x4 GetViewMatrix() const
+		{
+			return this->GetOrientation() * ACStdLib::Math::Matrix4x4::Translation(-this->position);
+		}
+
+		inline ACStdLib::Math::Vector3 GetRightDirection() const
+		{
+			return this->GetInverseOrientation() * ACStdLib::Math::Vector4(1, 0, 0, 1);
+		}
+
 		inline void LookAt(const ACStdLib::Math::Vector3 &refTarget)
 		{
 			this->SetViewDirection(refTarget - this->position);
 		}
 
+		inline void Rotate(const ACStdLib::Degree &refDx, const ACStdLib::Degree &refDy)
+		{
+			this->horzAngle += refDx;
+			this->vertAngle += refDy;
+
+			this->NormalizeAngles();
+		}
+
+		inline void SetAspectRatio(float32 aspectRatio)
+		{
+			this->aspectRatio = aspectRatio;
+		}
+
 		inline void SetFieldOfView(const ACStdLib::Degree &refFieldOfView)
 		{
 			this->fieldOfViewY = refFieldOfView;
+		}
+
+		inline void Translate(const ACStdLib::Math::Vector3 &refVector)
+		{
+			this->position += refVector;
 		}
 
 	private:
@@ -55,7 +87,17 @@ namespace ACGR
 		float32 farPlane;
 
 		//Methods
-		ACStdLib::Math::Matrix4x4 GetOrientation() const;
 		void NormalizeAngles();
+
+		//Inline
+		inline ACStdLib::Math::Matrix4x4 GetInverseOrientation() const
+		{
+			return ACStdLib::Math::Matrix4x4::RotationYawPitchRoll(-this->horzAngle, -this->vertAngle, 0);
+		}
+
+		inline ACStdLib::Math::Matrix4x4 GetOrientation() const
+		{
+			return ACStdLib::Math::Matrix4x4::RotationYawPitchRoll(this->horzAngle, this->vertAngle, 0);
+		}
 	};
 }

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Scene ambientLight="1, 1, 1">
+  <!--Cameras-->
+  <Camera position="0, 0, 0" direction="0, 0, -1" fovy="45°" />
+  <Node translate="0, 0, -0.5">
+    <Entity material="cornell_box_grey">Triangle</Entity>
+  </Node>
+</Scene>

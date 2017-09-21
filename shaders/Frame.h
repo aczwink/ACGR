@@ -16,28 +16,38 @@
  * You should have received a copy of the GNU General Public License
  * along with ACGR.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <ACStdLib.hpp>
-using namespace ACStdLib;
-using namespace ACStdLib::UI;
-//Local
-#include "DisplayWidget.hpp"
+//Vertex Shader
+const char shader_frame_vs[] = R"(
+#version 330 core
 
-class DemoMainWindow : public MainAppWindow
+//Inputs
+layout (location = 0) in vec2 position;
+
+//Output
+out vec2 UV;
+
+void main()
 {
-public:
-    //Constructor
-    DemoMainWindow();
+    gl_Position = vec4(position.x, position.y, 0.0f, 1.0f);
+    UV = vec2((position.x + 1) / 2, (position.y + 1) / 2);
+}
+)";
 
-    //Inline
-    inline void Update()
-    {
-        this->displayWidget->Repaint();
-    }
+//FRAGMENT SHADER
+const char shader_frame_fs[] = R"(
+#version 330 core
 
-private:
-    //Members
-    DisplayWidget *displayWidget;
+//Uniforms
+uniform sampler2D screenTexture;
 
-    //Methods
-	void SetupChildren();
-};
+//Inputs
+in vec2 UV;
+
+//Output
+out vec4 diffuseColor;
+
+void main()
+{
+	diffuseColor = texture(screenTexture, UV);
+}
+)";

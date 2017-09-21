@@ -53,7 +53,9 @@ namespace ACGR
 		~DeviceRenderer();
 
 		//Methods
-		void RenderFrame(const SceneManager &refSceneMgr, const Camera &refCamera);
+		void EnableDebugMode(bool state);
+		void InformDeviceStateChanged(const ACStdLib::Size &size);
+		void RenderFrame(const SceneManager &sceneManager, const Camera &camera);
 
 		//Inline
 		inline DeviceContext &GetDeviceContext()
@@ -74,13 +76,18 @@ namespace ACGR
 		Matrix4x4 projection;
 		Matrix4x4 VP;
 		ShaderCompiler shaderCompiler;
-		uint32 nLights;
+		FiniteSet<const Light *> activeLights;
 		Map<const Light *, SLightInfo> additionalLightInfo;
 		ShadowPass shadowPass;
-		ShaderProgram *pMeshProgram;
 		InputLayout meshInputLayout;
 		Map<const Mesh *, SMeshObjects> meshObjects;
 		Map<const Texture *, ITexture *> textures;
+		struct
+		{
+			const SceneManager *sceneManager;
+			const Camera *camera;
+			const Material *material;
+		} current;
 		struct
 		{
 			ShaderProgram *pFrameProgram;
@@ -104,15 +111,15 @@ namespace ACGR
 		} debug;
 
 		//Methods
-		void BeginRendering(const SceneManager &refSceneMgr, const Camera &refCamera);
-		void EnableLight(const Light *pLight, bool state = true);
+		void BeginRendering(const SceneManager &sceneManager, const Camera &camera);
+		void EnableLight(const Light *light, bool state = true);
 		void EndRendering();
 		void InitPrograms();
-		void Render(const Mesh *pMesh, const Matrix4x4 &refM);
+		void Render(const Mesh *pMesh, const Matrix4x4 &model);
 		void Render(const SceneNode &refNode, const Matrix4x4 &refM);
 		void RenderMesh(const Mesh *pMesh);
 		void RenderShadowMap(const Light *pLight, const SceneNode &refNode, const Matrix4x4 &refM);
-		void SetMaterial(const Material *pMaterial);
+		void SetMaterial(const Material *material);
 		void SetTexture(const Texture *pTexture);
 		void SetupFrameBuffer();
 		void SetupMeshObjects(const Mesh *pMesh, SMeshObjects &refMeshObjects);

@@ -26,25 +26,31 @@ namespace ACGR
 	{
 	public:
 		//Constructor
-		Entity(const ACStdLib::ByteString &refResource);
-
-		//Methods
-		void SetMaterial(const ACStdLib::ByteString &refResource);
+		inline Entity(const Mesh *mesh)
+		{
+			this->mesh = mesh;
+			this->material = nullptr;
+		}
 
 		//Inline
 		inline const Material *GetMaterial() const
 		{
-			return this->pMaterial;
+			return this->material;
 		}
 
 		inline const Mesh *GetMesh() const
 		{
-			return this->pMesh;
+			return this->mesh;
+		}
+
+		inline void SetMaterial(const Material *material)
+		{
+			this->material = material;
 		}
 
 	private:
 		//Members
-		Mesh *pMesh;
-		Material *pMaterial;
+		const Mesh *mesh;
+		const Material *material;
 	};
 }

@@ -16,28 +16,30 @@
  * You should have received a copy of the GNU General Public License
  * along with ACGR.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <ACStdLib.hpp>
-using namespace ACStdLib;
-using namespace ACStdLib::UI;
-//Local
-#include "DisplayWidget.hpp"
+//Vertex Shader
+const char shader_shadow_vs[] = R"(
+#version 330 core
+#extension GL_ARB_explicit_uniform_location : require
 
-class DemoMainWindow : public MainAppWindow
+//Uniforms
+layout (location = 0) uniform mat4 lightMatrix;
+layout (location = 1) uniform mat4 model;
+
+//Inputs
+layout (location = 0) in vec3 position;
+
+void main()
 {
-public:
-    //Constructor
-    DemoMainWindow();
+	gl_Position = lightMatrix * model * vec4(position, 1);
+}
+)";
 
-    //Inline
-    inline void Update()
-    {
-        this->displayWidget->Repaint();
-    }
+//FRAGMENT SHADER
+const char shader_shadow_fs[] = R"(
+#version 330 core
 
-private:
-    //Members
-    DisplayWidget *displayWidget;
-
-    //Methods
-	void SetupChildren();
-};
+void main()
+{
+	//nothing to be done here
+}
+)";

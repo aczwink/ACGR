@@ -1,13 +1,16 @@
 cmake_minimum_required(VERSION 3.6)
 project(ACGR)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14) #for lambdas
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse4.1") #currently a requirement for fast ray tracer
 
 #debug or release
 if(CMAKE_BUILD_TYPE MATCHES Debug)
     add_definitions(-D_DEBUG)
 
     set(CMAKE_DEBUG_POSTFIX "_d")
+elseif(CMAKE_BUILD_TYPE MATCHES Release)
+	#ok
 else()
     message(FATAL_ERROR "Unknown build type. Must be either 'Debug' or 'Release'")
 endif()
@@ -18,6 +21,7 @@ find_library(ACSTDLIBSTATIC_LIBRARY NAMES ACStdLibStatic_d)
 
 #collect files
 add_subdirectory(include)
+add_subdirectory(shaders)
 add_subdirectory(src)
 add_subdirectory(src_demo)
 

@@ -16,28 +16,45 @@
  * You should have received a copy of the GNU General Public License
  * along with ACGR.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <ACStdLib.hpp>
-using namespace ACStdLib;
-using namespace ACStdLib::UI;
-//Local
-#include "DisplayWidget.hpp"
+//Vertex Shader
+const char shader_skybox_vs[] = R"(
+#version 330 core
 
-class DemoMainWindow : public MainAppWindow
+layout (location = 0) in vec3 position;
+
+out vec3 textureCoords;
+
+uniform mat4 transform;
+
+void main()
 {
-public:
-    //Constructor
-    DemoMainWindow();
+	gl_Position = transform * vec4(position, 1.0);
+	gl_Position = gl_Position.xyww;
+	textureCoords = position;
+}
+)";
 
-    //Inline
-    inline void Update()
-    {
-        this->displayWidget->Repaint();
-    }
+//FRAGMENT SHADER
+const char shader_skybox_fs[] = R"(
+#version 330 core
 
-private:
-    //Members
-    DisplayWidget *displayWidget;
+//Constants
+const float gamma = 2.2;
 
-    //Methods
-	void SetupChildren();
-};
+//Uniforms
+uniform samplerCube skyBoxTexture;
+
+//Inputs
+in vec3 textureCoords;
+
+//Outputs
+out vec4 diffuseColor;
+
+void main()
+{
+	diffuseColor = texture(skyBoxTexture, textureCoords);
+
+	//apply gamma correction
+	diffuseColor.rgb = pow(diffuseColor.rgb, vec3(1.0 / gamma));
+}
+)";

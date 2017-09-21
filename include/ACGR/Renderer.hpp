@@ -40,6 +40,8 @@ namespace ACGR
 		virtual ~Renderer() {}
 
 		//Abstract
+		virtual void EnableDebugMode(bool state) = 0;
+		virtual void InformDeviceStateChanged(const ACStdLib::Size &size) = 0;
 		virtual void RenderFrame(const SceneManager &sceneManager, const Camera &camera) = 0;
 
 		//Functions

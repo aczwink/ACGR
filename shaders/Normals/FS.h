@@ -16,28 +16,17 @@
  * You should have received a copy of the GNU General Public License
  * along with ACGR.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <ACStdLib.hpp>
-using namespace ACStdLib;
-using namespace ACStdLib::UI;
-//Local
-#include "DisplayWidget.hpp"
+const char shader_normals_fs[] = R"(
+#version 330 core
 
-class DemoMainWindow : public MainAppWindow
+//Inputs
+in vec3 fragColor;
+
+//Outputs
+out vec4 diffuseColor;
+
+void main()
 {
-public:
-    //Constructor
-    DemoMainWindow();
-
-    //Inline
-    inline void Update()
-    {
-        this->displayWidget->Repaint();
-    }
-
-private:
-    //Members
-    DisplayWidget *displayWidget;
-
-    //Methods
-	void SetupChildren();
-};
+	diffuseColor = vec4(fragColor, 1.0f);
+}
+)";

@@ -16,28 +16,43 @@
  * You should have received a copy of the GNU General Public License
  * along with ACGR.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <ACStdLib.hpp>
-using namespace ACStdLib;
-using namespace ACStdLib::UI;
 //Local
-#include "DisplayWidget.hpp"
+#include "ACGR/Camera.hpp"
 
-class DemoMainWindow : public MainAppWindow
+namespace ACGR
 {
-public:
-    //Constructor
-    DemoMainWindow();
+	class FreeFlyCamera : public Camera
+	{
+	public:
+		//Constructor
+		inline FreeFlyCamera()
+		{
+			this->freeLook = false;
+		}
 
-    //Inline
-    inline void Update()
-    {
-        this->displayWidget->Repaint();
-    }
+		//Inline
+		inline void EnableFreeLook(bool enable)
+		{
+			this->freeLook = enable;
+		}
 
-private:
-    //Members
-    DisplayWidget *displayWidget;
+		inline bool IsFreeLookEnabled() const
+		{
+			return this->freeLook;
+		}
 
-    //Methods
-	void SetupChildren();
-};
+		inline void Update(float32 dt)
+		{
+			this->UpdateByKeyboard(dt);
+			this->UpdateByMouse(dt);
+		}
+
+	private:
+		//Members
+		bool freeLook;
+
+		//Methods
+		void UpdateByMouse(float32 dt);
+		void UpdateByKeyboard(float32 dt);
+	};
+}

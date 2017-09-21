@@ -16,6 +16,9 @@
  * You should have received a copy of the GNU General Public License
  * along with ACGR.  If not, see <http://www.gnu.org/licenses/>.
  */
+#pragma once
+#include <ACStdLib.hpp>
+
 namespace ACGR
 {
 	//Forward declarations
@@ -24,14 +27,29 @@ namespace ACGR
 	class Mesh
 	{
 	public:
-		struct SVertex
+		struct Vertex
 		{
 			ACStdLib::Math::Vector3 position;
 			ACStdLib::Math::Vector3 normal;
 			ACStdLib::Math::Vector2 textureCoords;
 		};
 
+		//Constructor
+		Mesh();
+
+		//Destructor
+		~Mesh();
+
+		//Methods
+		void SetIndices(uint16 nIndices, const uint16 *pIndices);
+		void SetVertices(uint32 nVertices, const Vertex *pVertices);
+
 		//Inline
+		inline const ACStdLib::Math::AxisAlignedBox &GetBoundingBox() const
+		{
+			return this->bbox;
+		}
+
 		inline const Material *GetMaterial() const
 		{
 			return this->pMaterial;
@@ -42,10 +60,12 @@ namespace ACGR
 			return this->pIndices16;
 		}
 
+		/*
 		inline uint32 *GetIndices32() const
 		{
 			return this->pIndices32;
 		}
+		*/
 
 		inline uint32 GetNumberOfIndices() const
 		{
@@ -57,20 +77,34 @@ namespace ACGR
 			return this->nVertices;
 		}
 
-		inline const SVertex *GetVertices() const
+		inline Vertex *GetVertices()
 		{
 			return this->pVertices;
 		}
 
+		inline const Vertex *GetVertices() const
+		{
+			return this->pVertices;
+		}
+
+	protected:
+		//Members
+		ACStdLib::Math::AxisAlignedBox bbox;
+
+		//Methods
+		void ComputeBBox();
+		void ComputeNormals();
+		void Subdivide();
+
 	private:
 		//Members
 		uint32 nVertices;
-		SVertex *pVertices;
+		Vertex *pVertices;
 		uint32 nIndices;
 		union
 		{
 			uint16 *pIndices16;
-			uint32 *pIndices32;
+			//uint32 *pIndices32;
 		};
 		Material *pMaterial;
 	};

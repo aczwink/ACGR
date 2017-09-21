@@ -16,8 +16,27 @@
  * You should have received a copy of the GNU General Public License
  * along with ACGR.  If not, see <http://www.gnu.org/licenses/>.
  */
-#pragma once
-#include <ACStdLib.hpp>
+//Class header
+#include <ACGR/Meshes/Procedural.hpp>
+//Local
+#include <ACGR/Meshes/Primitives.hpp>
+//Namespaces
+using namespace ACGR;
 
-//Global functions
-ACStdLib::Math::Vector3 ParseVec3(const ACStdLib::String &refString);
+//Constructor
+IcoSphere::IcoSphere(uint8 nSubdivisions)
+{
+	Icosahedron icosahedron;
+
+	this->SetVertices(icosahedron.GetNumberOfVertices(), icosahedron.GetVertices());
+	this->SetIndices(icosahedron.GetNumberOfIndices(), icosahedron.GetIndices16());
+
+	for(uint8 i = 0; i < nSubdivisions; i++)
+		this->Subdivide();
+
+	//normalize vertices so that they lie on the unit sphere
+	for(uint32 i = 0; i < this->GetNumberOfVertices(); i++)
+		this->GetVertices()[i].position = this->GetVertices()[i].position.Normalize();
+
+	this->ComputeBBox();
+}

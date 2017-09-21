@@ -22,36 +22,19 @@
 #include <ACGR/Camera.hpp>
 #include <ACGR/Material.hpp>
 #include <ACGR/SceneManager.hpp>
+//Shaders
+#include "../../shaders/Frame.h"
+#include "../../shaders/Normals/FS.h"
+#include "../../shaders/Normals/GS.h"
+#include "../../shaders/Normals/VS.h"
+#include "../../shaders/SkyBox.h"
 //Namespaces
 using namespace ACGR;
-
-//Constants
-const uint32 MAX_LIGHTS = 4;
-
-enum EMeshUniformIds
-{
-	UNIFORM_ID_MESH_MODEL,
-	UNIFORM_ID_MESH_MVP,
-	UNIFORM_ID_MESH_AMBIENT_LIGHT,
-	UNIFORM_ID_MESH_CAMERA_POS,
-	UNIFORM_ID_MESH_ENVIRONMENT,
-	UNIFORM_ID_MESH_MAX_LIGHT_INDEX
-};
-
-enum ETextureUnitAllocation
-{
-	TEXTURE_UNIT_MATERIAL,
-	TEXTURE_UNIT_ENVIRONMENT,
-
-	//let the shadow maps be the last ones
-	TEXTURE_UNIT_SHADOWMAP_0,
-};
 
 //Constructor
 DeviceRenderer::DeviceRenderer(DeviceContext &refDeviceContext) : refDeviceContext(refDeviceContext), shaderCompiler(refDeviceContext), shadowPass(*this)
 {
 	this->debugMode = false;
-	this->nLights = 0;
 
 	this->InitPrograms();
 	this->SetupFrameBuffer();
@@ -89,14 +72,34 @@ DeviceRenderer::~DeviceRenderer()
 }
 
 //Public methods
-void DeviceRenderer::RenderFrame(const SceneManager &refSceneMgr, const Camera &refCamera)
+void DeviceRenderer::EnableDebugMode(bool state)
 {
+	this->debugMode = state;
+}
+
+void DeviceRenderer::InformDeviceStateChanged(const Size &size)
+{
+	this->deviceSize = size;
+
+	//resize all shadow depth maps
+	for(auto &refKV : this->additionalLightInfo)
+		refKV.value.pShadowMap->AllocateDepth(size.width, size.height);
+
+	//this->pFrameColorBuffer->Allocate(false, size.width, size.height, nullptr);
+}
+
+void DeviceRenderer::RenderFrame(const SceneManager &sceneManager, const Camera &camera)
+{
+	//we need this throughout the whole frame
+	this->current.sceneManager = &sceneManager;
+	this->current.camera = &camera;
+
 	//set device settings
 	this->refDeviceContext.EnableDepthTest();
 	this->refDeviceContext.EnableFaceCulling();
 
 	//first do shadow passes for all lights
-	auto lights = refSceneMgr.GetLights();
+	auto lights = sceneManager.GetLights();
 	for(const auto &refKV : lights)
 		this->RenderShadowMap(refKV.key, *refKV.value, refKV.value->ComputeModelMatrix());
 
@@ -115,79 +118,37 @@ void DeviceRenderer::RenderFrame(const SceneManager &refSceneMgr, const Camera &
 	//SHOW SHADOW MAP
 
 	//now render scene
-	this->BeginRendering(refSceneMgr, refCamera);
+	this->BeginRendering(sceneManager, camera);
 
 	this->refDeviceContext.SetFrameBuffer(nullptr); //switch to screen frame buffer
 
 	this->refDeviceContext.ClearColorBuffer(Color(0.1f, 0.1f, 0.1f, 1));
 	this->refDeviceContext.ClearDepthBuffer();
 
-	this->Render(*refSceneMgr.GetRootNode(), Matrix4x4::Identity());
+	this->Render(*sceneManager.GetRootNode(), Matrix4x4::Identity());
 
 	this->EndRendering();
 }
 
 //Private methods
-void DeviceRenderer::BeginRendering(const SceneManager &refSceneMgr, const Camera &refCamera)
+void DeviceRenderer::BeginRendering(const SceneManager &sceneManager, const Camera &camera)
 {
 	//camera
-	this->view = refCamera.GetViewMatrix();
-	this->projection = refCamera.GetPerspectiveMatrix();
+	this->view = camera.GetViewMatrix();
+	this->projection = camera.GetPerspectiveMatrix();
 	this->VP = this->projection * this->view;
 
-	this->pMeshProgram->SetUniformValue(UNIFORM_ID_MESH_CAMERA_POS, refCamera.position);
-
 	//set the sky box
-	this->SetSkyBox(refSceneMgr.GetSkyBox());
+	this->SetSkyBox(sceneManager.GetSkyBox());
 	this->refDeviceContext.SetTexture(TEXTURE_UNIT_ENVIRONMENT, this->skyBox.pCubeMap);
-	this->pMeshProgram->SetUniformValue(UNIFORM_ID_MESH_ENVIRONMENT, (int32)TEXTURE_UNIT_ENVIRONMENT);
-
-	//set uniforms that don't change for the entire frame
-	this->pMeshProgram->SetUniformValue(UNIFORM_ID_MESH_AMBIENT_LIGHT, refSceneMgr.ambientLight);
-
-	this->pMeshProgram->SetUniformValue(this->pMeshProgram->GetUniformId("material.tex"), (int32)TEXTURE_UNIT_MATERIAL);
 }
 
-void DeviceRenderer::EnableLight(const Light *pLight, bool state)
+void DeviceRenderer::EnableLight(const Light *light, bool state)
 {
 	if(state)
-	{
-		if(this->nLights < MAX_LIGHTS)
-		{
-			ByteString prefix;
-
-			SLightInfo &refLightInfo = this->additionalLightInfo[pLight];
-
-			//set the light in shader
-			prefix = "lights[" + ToString_8Bit(this->nLights) + "].";
-			this->pMeshProgram->SetUniformValue(this->pMeshProgram->GetUniformId(prefix + "type"), (uint32)pLight->type);
-			this->pMeshProgram->SetUniformValue(this->pMeshProgram->GetUniformId(prefix + "color"), pLight->color);
-			this->pMeshProgram->SetUniformValue(this->pMeshProgram->GetUniformId(prefix + "power"), pLight->power);
-			this->pMeshProgram->SetUniformValue(this->pMeshProgram->GetUniformId(prefix + "lightVP"), refLightInfo.lightVP);
-			this->pMeshProgram->SetUniformValue(this->pMeshProgram->GetUniformId(prefix + "direction"), pLight->direction);
-			this->pMeshProgram->SetUniformValue(this->pMeshProgram->GetUniformId(prefix + "pos"), pLight->position);
-			this->pMeshProgram->SetUniformValue(this->pMeshProgram->GetUniformId(prefix + "innerConeAngle"), (float32)cos(Radian(pLight->innerConeAngle).value));
-			this->pMeshProgram->SetUniformValue(this->pMeshProgram->GetUniformId(prefix + "openingAngle"), (float32)cos(Radian(pLight->openingAngle).value));
-
-			//update number of lights in shader
-			this->pMeshProgram->SetUniformValue(UNIFORM_ID_MESH_MAX_LIGHT_INDEX, this->nLights + 1);
-
-			//set shadow map
-			this->refDeviceContext.SetTexture(uint8(TEXTURE_UNIT_SHADOWMAP_0 + this->nLights), refLightInfo.pShadowMap);
-			this->pMeshProgram->SetUniformValue(this->pMeshProgram->GetUniformId(prefix + "shadowMap"), int32(TEXTURE_UNIT_SHADOWMAP_0 + this->nLights));
-		}
-
-		this->nLights++;
-	}
+		this->activeLights.Insert(light);
 	else
-	{
-		this->nLights--;
-		if(this->nLights < MAX_LIGHTS)
-		{
-			//update number of lights in shader
-			this->pMeshProgram->SetUniformValue(UNIFORM_ID_MESH_MAX_LIGHT_INDEX, this->nLights);
-		}
-	}
+		this->activeLights.Remove(light);
 }
 
 void DeviceRenderer::EndRendering()
@@ -214,32 +175,60 @@ void DeviceRenderer::EndRendering()
 
 void DeviceRenderer::InitPrograms()
 {
-	this->pFrameProgram = this->shaderCompiler.FetchStaticProgram("Frame");
-	this->pMeshProgram = this->shaderCompiler.FetchStaticProgram("Mesh");
-	this->debug.pNormalsProgram = this->shaderCompiler.FetchStaticProgram("Normals");
+	this->pFrameProgram = this->shaderCompiler.CompileStaticProgram(SHADER_ARGS(frame));
+	this->debug.pNormalsProgram = this->shaderCompiler.CompileStaticProgram(SHADER_ARGS_WITH_GEOMETRY(normals));
 
 	this->meshInputLayout.AddAttribute3(); //pos
 	this->meshInputLayout.AddAttribute3(); //normal
 	this->meshInputLayout.AddAttribute2(); //texcoords
-
-	//init shader uniforms
-	this->pMeshProgram->SetUniformValue(UNIFORM_ID_MESH_MAX_LIGHT_INDEX, 0u);
 }
 
-void DeviceRenderer::Render(const Mesh *pMesh, const Matrix4x4 &refM)
+void DeviceRenderer::Render(const Mesh *pMesh, const Matrix4x4 &model)
 {
 	//program
-	this->refDeviceContext.SetProgram(this->pMeshProgram);
-	this->pMeshProgram->SetUniformValue(UNIFORM_ID_MESH_MODEL, refM);
-	this->pMeshProgram->SetUniformValue(UNIFORM_ID_MESH_MVP, this->VP * refM);
+	ShaderProgram *meshProgram = this->shaderCompiler.GetMeshProgram(this->current.material, this->activeLights);
+
+	meshProgram->SetUniformValue(UNIFORM_ID_MESH_MODEL, model);
+	meshProgram->SetUniformValue(UNIFORM_ID_MESH_MVP, this->VP * model);
+	meshProgram->SetUniformValue(meshProgram->GetUniformId("material.diffuseColor"), this->current.material->diffuseColor);
+
+	meshProgram->SetUniformValue(UNIFORM_ID_MESH_CAMERA_POS, this->current.camera->position);
+	meshProgram->SetUniformValue(UNIFORM_ID_MESH_AMBIENT_LIGHT, this->current.sceneManager->ambientLight);
+
+	uint32 lightCounter = 0;
+	for(const Light *const& light : this->activeLights)
+	{
+		ByteString prefix;
+
+		SLightInfo &refLightInfo = this->additionalLightInfo[light];
+
+		//set the light in shader
+		prefix = "lights[" + ToString_8Bit(lightCounter) + "].";
+		meshProgram->SetUniformValue(meshProgram->GetUniformId(prefix + "type"), (uint32)light->type);
+		meshProgram->SetUniformValue(meshProgram->GetUniformId(prefix + "diffuseColor"), light->color);
+		meshProgram->SetUniformValue(meshProgram->GetUniformId(prefix + "power"), light->power);
+		meshProgram->SetUniformValue(meshProgram->GetUniformId(prefix + "lightVP"), refLightInfo.lightVP);
+		meshProgram->SetUniformValue(meshProgram->GetUniformId(prefix + "direction"), light->direction);
+		meshProgram->SetUniformValue(meshProgram->GetUniformId(prefix + "pos"), light->position);
+		meshProgram->SetUniformValue(meshProgram->GetUniformId(prefix + "innerConeAngle"), (float32)cos(Radian(light->innerConeAngle).value));
+		meshProgram->SetUniformValue(meshProgram->GetUniformId(prefix + "openingAngle"), (float32)cos(Radian(light->openingAngle).value));
+
+		//set shadow map
+		this->refDeviceContext.SetTexture(uint8(TEXTURE_UNIT_SHADOWMAP_0 + lightCounter), refLightInfo.pShadowMap);
+		meshProgram->SetUniformValue(meshProgram->GetUniformId(prefix + "shadowMap"), int32(TEXTURE_UNIT_SHADOWMAP_0 + lightCounter));
+
+		lightCounter++;
+	}
+
+	this->refDeviceContext.SetProgram(meshProgram);
 
 	//render mesh
 	this->RenderMesh(pMesh);
 
 	if(this->debugMode)
 	{
-		this->debug.pNormalsProgram->SetUniformValue(UNIFORM_ID_MESH_MODEL, refM);
-		this->debug.pNormalsProgram->SetUniformValue(UNIFORM_ID_MESH_MVP, this->VP * refM);
+		this->debug.pNormalsProgram->SetUniformValue(UNIFORM_ID_MESH_MODEL, model);
+		this->debug.pNormalsProgram->SetUniformValue(UNIFORM_ID_MESH_MVP, this->VP * model);
 		this->debug.pNormalsProgram->SetUniformValue(this->debug.pNormalsProgram->GetUniformId("view"), this->view);
 		this->debug.pNormalsProgram->SetUniformValue(this->debug.pNormalsProgram->GetUniformId("projection"), this->projection);
 
@@ -317,20 +306,20 @@ void DeviceRenderer::RenderShadowMap(const Light *pLight, const SceneNode &refNo
 	this->shadowPass.RenderDepthMap(refLightInfo, refNode, refM);
 }
 
-void DeviceRenderer::SetMaterial(const Material *pMaterial)
+void DeviceRenderer::SetMaterial(const Material *material)
 {
-	if(!pMaterial)
+	if(!material)
 	{
-		//no material
-		this->refDeviceContext.EnableBlending(false); //render opaque
-		this->SetTexture(nullptr);
+		//no material available
+		static const Material emptyMaterial;
 
-		return;
+		material = &emptyMaterial;
 	}
 
+	this->current.material = material;
 
-	this->refDeviceContext.EnableBlending(pMaterial->useAlphaBlending);
-	this->SetTexture(pMaterial->GetTexture());
+	this->refDeviceContext.EnableBlending(material->useAlphaBlending);
+	this->SetTexture(material->GetTexture());
 }
 
 void DeviceRenderer::SetSkyBox(const SkyBox &refSkyBox)
@@ -408,13 +397,13 @@ void DeviceRenderer::SetupMeshObjects(const Mesh *pMesh, SMeshObjects &refMeshOb
 	//vertex buffer
 	refMeshObjects.pVertexBuffer = this->refDeviceContext.CreateVertexBuffer();
 
-	refMeshObjects.pVertexBuffer->Allocate(pMesh->GetNumberOfVertices(), sizeof(Mesh::SVertex), pMesh->GetVertices());
+	refMeshObjects.pVertexBuffer->Allocate(pMesh->GetNumberOfVertices(), sizeof(Mesh::Vertex), pMesh->GetVertices());
 
 	//index buffer
 	refMeshObjects.pIndexBuffer = this->refDeviceContext.CreateIndexBuffer();
 
-	if(pMesh->GetNumberOfVertices() > UINT16_MAX)
-		refMeshObjects.pIndexBuffer->Allocate(pMesh->GetNumberOfIndices(), pMesh->GetIndices32());
+	if(pMesh->GetNumberOfVertices() > UINT16_MAX) //refMeshObjects.pIndexBuffer->Allocate(pMesh->GetNumberOfIndices(), pMesh->GetIndices32());
+		NOT_IMPLEMENTED_ERROR
 	else
 		refMeshObjects.pIndexBuffer->Allocate(pMesh->GetNumberOfIndices(), pMesh->GetIndices16());
 
@@ -442,7 +431,7 @@ void DeviceRenderer::SetupFrameBuffer()
 			{1, -1}, //bottom
 		};
 
-	//set up color buffer for frame buffer
+	//set up diffuseColor buffer for frame buffer
 	screenSize = Size::GetScreenSize();
 
 	this->pFrameColorBuffer = this->refDeviceContext.CreateTexture2D();
@@ -517,7 +506,7 @@ void DeviceRenderer::SetupSkyBox()
 		};
 
 	//create program
-	this->skyBox.pProgram = this->shaderCompiler.FetchStaticProgram("SkyBox");
+	this->skyBox.pProgram = this->shaderCompiler.CompileStaticProgram(SHADER_ARGS(skybox));
 
 	this->skyBox.pProgram->SetUniformValue(this->skyBox.pProgram->GetUniformId("skyBoxTexture"), (int32)TEXTURE_UNIT_ENVIRONMENT);
 
