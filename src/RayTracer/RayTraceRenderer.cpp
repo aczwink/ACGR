@@ -61,14 +61,14 @@ void RayTraceRenderer::InformDeviceStateChanged(const ACStdLib::Size &refSize)
 	this->framePictureArray = new Vector3[refSize.width * refSize.height];
 }
 
-void RayTraceRenderer::RenderFrame(const SceneManager &refSceneMgr, const Camera &refCamera)
+void RayTraceRenderer::RenderFrame(const SceneManager &refSceneMgr, const Camera &camera)
 {
 	uint16 nLinesPerTask;
 	uint32 i;
 	Matrix4x4 frustum;
 	Map<Light *, SceneNode *> lights;
 
-	frustum = (refCamera.GetViewMatrix() * refCamera.GetPerspectiveMatrix()).Inverse();
+	frustum = (camera.GetPerspectiveMatrix() * camera.GetViewMatrix()).Inverse();
 	lights = refSceneMgr.GetLights();
 
 	//generate tasks for thread pool
@@ -76,16 +76,16 @@ void RayTraceRenderer::RenderFrame(const SceneManager &refSceneMgr, const Camera
 	for(i = 0; i < this->threadPool.GetNumberOfThreads(); i++)
 	{
 		this->threadPool.EnqueueTask(
-			[this, start = i * nLinesPerTask, end = (i + 1) * nLinesPerTask, nLinesPerTask, &frustum, &lights, &refSceneMgr, &refCamera]()
+			[this, start = i * nLinesPerTask, end = (i + 1) * nLinesPerTask, nLinesPerTask, &frustum, &lights, &refSceneMgr, &camera]()
 			{
-				this->RenderLines(start, end, frustum, lights, refSceneMgr, refCamera);
+				this->RenderLines(start, end, frustum, lights, refSceneMgr, camera);
 			}
 		);
 	}
 	this->threadPool.EnqueueTask(
-		[this, start = i * nLinesPerTask, leftOver = this->frameSize.height, &frustum, &lights, &refSceneMgr, &refCamera]()
+		[this, start = i * nLinesPerTask, leftOver = this->frameSize.height, &frustum, &lights, &refSceneMgr, &camera]()
 		{
-			this->RenderLines(start, leftOver, frustum, lights, refSceneMgr, refCamera);
+			this->RenderLines(start, leftOver, frustum, lights, refSceneMgr, camera);
 		}
 	);
 
@@ -97,11 +97,15 @@ void RayTraceRenderer::RenderFrame(const SceneManager &refSceneMgr, const Camera
 
 	FileOutputStream fos(Path("/home/amir/Desktop/blub.ppm"));
 	fos << "P6" << endl << this->frameSize.width << " " << this->frameSize.height << endl << "255" << endl;
-	for(int i = 0; i < this->frameSize.width * this->frameSize.height; i++)
+	for(int y = this->frameSize.height-1; y >= 0; y--)
 	{
-		fos.WriteByte(static_cast<byte>(this->framePictureArray[i].x * 255));
-		fos.WriteByte(static_cast<byte>(this->framePictureArray[i].y * 255));
-		fos.WriteByte(static_cast<byte>(this->framePictureArray[i].z * 255));
+		for(int x = 0; x < this->frameSize.width; x++)
+		{
+			int i = y * this->frameSize.width + x;
+			fos.WriteByte(static_cast<byte>(this->framePictureArray[i].z * 255));
+			fos.WriteByte(static_cast<byte>(this->framePictureArray[i].y * 255));
+			fos.WriteByte(static_cast<byte>(this->framePictureArray[i].x * 255));
+		}
 	}
 
 	//render plane
@@ -192,7 +196,7 @@ vec4f32 RayTraceRenderer::ComputeLights(const Ray &refRay, const vec4f32 &refNor
 		combinedLight += this->ComputeLight(refRay, *refKV.key, refNormal);
 	}
 
-	return vec4f32(refSceneMgr.ambientLight, 1) + combinedLight;
+	return vec4f32(refSceneMgr.ambientLight, 0) + combinedLight;
 }
 
 Vector3 RayTraceRenderer::ComputeShading(const Ray &refRay, const Map<Light *, SceneNode *> &refLights, const SceneManager &refSceneMgr)
@@ -227,7 +231,7 @@ Vector3 RayTraceRenderer::ComputeSkyColor()
 	return Vector3();
 }
 
-void RayTraceRenderer::RenderLines(uint16 y, uint16 yMax, const Matrix4x4 &refFrustum, const Map<Light *, SceneNode *> &refLights, const SceneManager &refSceneMgr, const Camera &refCamera)
+void RayTraceRenderer::RenderLines(uint16 y, uint16 yMax, const Matrix4x4 &frustum, const Map<Light *, SceneNode *> &refLights, const SceneManager &refSceneMgr, const Camera &refCamera)
 {
 	uint16 x;
 	uint32 index;
@@ -242,14 +246,14 @@ void RayTraceRenderer::RenderLines(uint16 y, uint16 yMax, const Matrix4x4 &refFr
 			//Normalized device coordinates
 			start.x = -1 + 2 * (x / (float32)this->frameSize.width);
 			start.y = -1 + 2 * (y / (float32)this->frameSize.height);
-			start.z = -1;
+			start.z = -1; //NDC is a left-handed coordinate system
 			start.w = 1;
 
 			end = start;
 			end.z = 1;
 
-			start = refFrustum * start;
-			end = refFrustum * end;
+			start = frustum * start;
+			end = frustum * end;
 
 			dir = (end / end.w - start / start.w).Normalize();
 

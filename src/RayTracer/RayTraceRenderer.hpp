@@ -65,7 +65,7 @@ namespace ACGR
 		//Methods
 		void EnableDebugMode(bool state);
 		void InformDeviceStateChanged(const ACStdLib::Size &refSize);
-		void RenderFrame(const SceneManager &refSceneMgr, const Camera &refCamera);
+		void RenderFrame(const SceneManager &refSceneMgr, const Camera &camera);
 
 	private:
 		//Members
@@ -84,7 +84,7 @@ namespace ACGR
 		vec4f32 ComputeLights(const Ray &refRay, const vec4f32 &refNormal, const Map<Light *, SceneNode *> &refLights, const SceneManager &refSceneMgr);
 		Vector3 ComputeShading(const Ray &refRay, const Map<Light *, SceneNode *> &refLights, const SceneManager &refSceneMgr);
 		Vector3 ComputeSkyColor();
-		void RenderLines(uint16 y, uint16 yMax, const Matrix4x4 &refFrustum, const Map<Light *, SceneNode *> &refLights, const SceneManager &refSceneMgr, const Camera &refCamera);
+		void RenderLines(uint16 y, uint16 yMax, const Matrix4x4 &frustum, const Map<Light *, SceneNode *> &refLights, const SceneManager &refSceneMgr, const Camera &refCamera);
 		void SetupPlane();
 		void ShootRay(const Mesh &refMesh, const Material *pMaterial, const Matrix4x4 &refM, const vec4f32 &refOrigin, const vec4f32 &refDir, Ray &refRay);
 		void ShootRay(const SceneNode &refNode, const Matrix4x4 &refM, const vec4f32 &refOrigin, const vec4f32 &refDir, Ray &refRay);
