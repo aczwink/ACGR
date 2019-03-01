@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2017-2019 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of ACGR.
  *
@@ -26,7 +26,7 @@ namespace ACGR
 	{
 	public:
 		//Members
-		ACStdLib::Math::Vector3 ambientLight;
+		StdXX::Math::Vector3S ambientLight;
 
 		//Constructor
 		SceneManager();
@@ -35,10 +35,10 @@ namespace ACGR
 		~SceneManager();
 
 		//Methods
-		void SetSkyBox(const ACStdLib::ByteString &refResource);
+		void SetSkyBox(const StdXX::String &refResource);
 
 		//Inline
-		inline ACStdLib::Map<Light *, SceneNode *> GetLights() const
+		inline StdXX::Map<Light *, SceneNode *> GetLights() const
 		{
 			return this->sceneGraphRoot->GetLights();
 		}

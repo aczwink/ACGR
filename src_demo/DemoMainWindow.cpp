@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2017-2019 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of ACGR.
  *
@@ -20,7 +20,7 @@
 #include "DemoMainWindow.hpp"
 
 //Constructor
-DemoMainWindow::DemoMainWindow()
+DemoMainWindow::DemoMainWindow(EventQueue& eventQueue) : MainAppWindow(eventQueue)
 {
     this->SetTitle("AC3D Demo");
 
@@ -30,14 +30,19 @@ DemoMainWindow::DemoMainWindow()
 //Private methods
 void DemoMainWindow::SetupChildren()
 {
-	this->SetLayout(new HorizontalLayout);
-	this->displayWidget = new DisplayWidget(this);
+	CompositeWidget* container = new CompositeWidget;
+	container->SetLayout(new HorizontalLayout);
+	this->SetContentContainer(container);
+
+	this->displayWidget = new DisplayWidget();
+	container->AddChild(this->displayWidget);
 
 	//settings panel
-	GroupBox *pSettingsGroup = new GroupBox(this);
-	pSettingsGroup->SetText("Settings");
+	GroupBox *pSettingsGroup = new GroupBox();
+	pSettingsGroup->SetTitle(u8"Settings");
+	container->AddChild(pSettingsGroup);
 
-	PushButton *rayTraceButton = new PushButton(pSettingsGroup);
+	PushButton *rayTraceButton = new PushButton();
 	rayTraceButton->SetText("Raytrace");
 	rayTraceButton->onActivatedHandler = [p3DView = this->displayWidget]()
 	{
@@ -46,18 +51,21 @@ void DemoMainWindow::SetupChildren()
 		p3DView->RayTrace();
 		stdOut << "Raytracing took " << c.GetElapsedMicroseconds() / 1000000.0 << " seconds." << endl;
 	};
+	pSettingsGroup->AddContentChild(rayTraceButton);
 
-	CheckBox *checkBox = new CheckBox(pSettingsGroup);
+	CheckBox *checkBox = new CheckBox();
 	checkBox->SetText("Toggle wireframe");
 	checkBox->onToggledHandler = [p3DView = this->displayWidget, checkBox]()
 	{
 		p3DView->SetWireFrame(checkBox->IsChecked());
 	};
+	pSettingsGroup->AddContentChild(checkBox);
 
-	checkBox = new CheckBox(pSettingsGroup);
+	checkBox = new CheckBox();
 	checkBox->SetText("Toggle debug mode");
 	checkBox->onToggledHandler = [p3DView = this->displayWidget, checkBox]()
 	{
 		p3DView->SetDebugMode(checkBox->IsChecked());
 	};
+	pSettingsGroup->AddContentChild(checkBox);
 }

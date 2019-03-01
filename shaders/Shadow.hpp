@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2017-2019 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of ACGR.
  *
@@ -19,11 +19,10 @@
 //Vertex Shader
 const char shader_shadow_vs[] = R"(
 #version 330 core
-#extension GL_ARB_explicit_uniform_location : require
 
 //Uniforms
-layout (location = 0) uniform mat4 lightMatrix;
-layout (location = 1) uniform mat4 model;
+uniform mat4 lightMatrix;
+uniform mat4 model;
 
 //Inputs
 layout (location = 0) in vec3 position;

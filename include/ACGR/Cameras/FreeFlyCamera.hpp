@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2017-2019 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of ACGR.
  *
@@ -41,18 +41,12 @@ namespace ACGR
 			return this->freeLook;
 		}
 
-		inline void Update(float32 dt)
-		{
-			this->UpdateByKeyboard(dt);
-			this->UpdateByMouse(dt);
-		}
-
 	private:
 		//Members
 		bool freeLook;
 
 		//Methods
-		void UpdateByMouse(float32 dt);
-		void UpdateByKeyboard(float32 dt);
+		void UpdateByMouse(float32 dt, const StdXX::Math::Point<uint16>& mousePos, bool isLeftMouseButtonDown);
+		void UpdateByKeyboard(float32 dt, bool isShiftDown, bool w, bool s, bool a, bool d);
 	};
 }

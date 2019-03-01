@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2017-2019 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of ACGR.
  *
@@ -31,7 +31,7 @@ namespace ACGR
 		friend class SceneManager;
 	public:
 		//Methods
-		ACStdLib::Math::Matrix4x4 ComputeModelMatrix() const;
+		StdXX::Math::Matrix4S ComputeModelMatrix() const;
 
 		//Constructor
 		SceneNode();
@@ -61,63 +61,63 @@ namespace ACGR
 			this->attachedLights.InsertTail(pLight);
 		}
 
-		inline const ACStdLib::LinkedList<Camera *> &GetAttachedCameras() const
+		inline const StdXX::LinkedList<Camera *> &GetAttachedCameras() const
 		{
 			return this->attachedCameras;
 		}
 
-		inline const ACStdLib::LinkedList<Entity *> &GetAttachedEntities() const
+		inline const StdXX::LinkedList<Entity *> &GetAttachedEntities() const
 		{
 			return this->attachedEntities;
 		}
 
-		inline const ACStdLib::LinkedList<Light *> &GetAttachedLights() const
+		inline const StdXX::LinkedList<Light *> &GetAttachedLights() const
 		{
 			return this->attachedLights;
 		}
 
-		inline const ACStdLib::LinkedList<SceneNode *> &GetChildren() const
+		inline const StdXX::LinkedList<SceneNode *> &GetChildren() const
 		{
 			return this->children;
 		}
 
-		inline ACStdLib::Map<Light *, SceneNode *> GetLights()
+		inline StdXX::Map<Light *, SceneNode *> GetLights()
 		{
-			ACStdLib::Map<Light *, SceneNode *> result;
+			StdXX::Map<Light *, SceneNode *> result;
 			this->GetLights(result);
 			return result;
 		}
 
-		inline const ACStdLib::Math::Matrix4x4 &GetTransformation() const
+		inline const StdXX::Math::Matrix4S &GetTransformation() const
 		{
 			return this->transformation;
 		}
 
-		inline void Rotate(const ACStdLib::Radian &refYaw, const ACStdLib::Radian &refPitch, const ACStdLib::Radian &refRoll)
+		inline void Rotate(const StdXX::Math::Radian<float32> &refYaw, const StdXX::Math::Radian<float32> &refPitch, const StdXX::Math::Radian<float32> &refRoll)
 		{
-			this->transformation *= ACStdLib::Math::Matrix4x4::RotationYawPitchRoll(refYaw, refPitch, refRoll);
+			this->transformation *= StdXX::Math::Matrix4S::RotationYawPitchRoll(refYaw, refPitch, refRoll);
 		}
 
 		inline void Scale(float32 scaleX, float32 scaleY, float32 scaleZ)
 		{
-			this->transformation *= ACStdLib::Math::Matrix4x4::Scale(scaleX, scaleY, scaleZ);
+			this->transformation *= StdXX::Math::Matrix4S::Scale({scaleX, scaleY, scaleZ});
 		}
 
 		inline void Translate(float32 dx, float32 dy, float32 dz)
 		{
-			this->transformation *= ACStdLib::Math::Matrix4x4::Translation(dx, dy, dz);
+			this->transformation *= StdXX::Math::Matrix4S::Translation({dx, dy, dz});
 		}
 
 	private:
 		//Members
 		SceneNode *pParent;
-		ACStdLib::Math::Matrix4x4 transformation;
-		ACStdLib::LinkedList<SceneNode *> children;
-		ACStdLib::LinkedList<Camera *> attachedCameras;
-		ACStdLib::LinkedList<Entity *> attachedEntities;
-		ACStdLib::LinkedList<Light *> attachedLights;
+		StdXX::Math::Matrix4S transformation;
+		StdXX::LinkedList<SceneNode *> children;
+		StdXX::LinkedList<Camera *> attachedCameras;
+		StdXX::LinkedList<Entity *> attachedEntities;
+		StdXX::LinkedList<Light *> attachedLights;
 
 		//Methods
-		void GetLights(ACStdLib::Map<Light *, SceneNode *> &refResult);
+		void GetLights(StdXX::Map<Light *, SceneNode *> &refResult);
 	};
 }

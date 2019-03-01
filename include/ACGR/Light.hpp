@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2017-2019 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of ACGR.
  *
@@ -32,12 +32,12 @@ namespace ACGR
 	public:
 		//Members
 		ELightType type;
-		ACStdLib::Math::Vector3 direction; //For directional and Spotlight
-		ACStdLib::Math::Vector3 position; //For Point and Spotlight
-		ACStdLib::Math::Vector3 color;
+		StdXX::Math::Vector3S direction; //For directional and Spotlight
+		StdXX::Math::Vector3S position; //For Point and Spotlight
+		StdXX::Math::Vector3S color;
 		float32 power;
-		ACStdLib::Degree openingAngle; //For Spotlight
-		ACStdLib::Degree innerConeAngle; //For Spotlight
+		StdXX::Math::Degree<float32> openingAngle; //For Spotlight
+		StdXX::Math::Degree<float32> innerConeAngle; //For Spotlight
 
 		//Constructor
 		inline Light()
@@ -47,7 +47,7 @@ namespace ACGR
 		}
 
 		//Inline
-		inline void LookAt(const ACStdLib::Math::Vector3 &refTarget)
+		inline void LookAt(const StdXX::Math::Vector3S &refTarget)
 		{
 			this->direction = refTarget - this->position;
 		}

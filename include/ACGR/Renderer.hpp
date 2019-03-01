@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2017-2019 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of ACGR.
  *
@@ -17,7 +17,7 @@
  * along with ACGR.  If not, see <http://www.gnu.org/licenses/>.
  */
 #pragma once
-#include <ACStdLib.hpp>
+#include <Std++.hpp>
 
 namespace ACGR
 {
@@ -41,10 +41,10 @@ namespace ACGR
 
 		//Abstract
 		virtual void EnableDebugMode(bool state) = 0;
-		virtual void InformDeviceStateChanged(const ACStdLib::Size &size) = 0;
+		virtual void InformDeviceStateChanged(const StdXX::Math::SizeS &size) = 0;
 		virtual void RenderFrame(const SceneManager &sceneManager, const Camera &camera) = 0;
 
 		//Functions
-		static Renderer *CreateInstance(RendererType type, ACStdLib::Rendering::DeviceContext &deviceContext);
+		static Renderer *CreateInstance(RendererType type, StdXX::Rendering::DeviceContext &deviceContext);
 	};
 }

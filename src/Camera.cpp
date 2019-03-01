@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2017-2019 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of ACGR.
  *
@@ -19,8 +19,8 @@
 //Class header
 #include <ACGR/Camera.hpp>
 //Namespaces
-using namespace ACStdLib;
-using namespace ACStdLib::Math;
+using namespace StdXX;
+using namespace StdXX::Math;
 using namespace ACGR;
 
 //Constructor
@@ -35,16 +35,16 @@ Camera::Camera()
 }
 
 //Public methods
-Matrix4x4 Camera::GetPerspectiveMatrix() const
+Matrix4S Camera::GetPerspectiveMatrix() const
 {
-	return Matrix4x4::PerspectiveRH(this->fieldOfViewY, this->aspectRatio, this->nearPlane, this->farPlane);
+	return Matrix4S::PerspectiveRH(this->fieldOfViewY, this->aspectRatio, this->nearPlane, this->farPlane);
 }
 
-void Camera::SetViewDirection(const Vector3 &refDir)
+void Camera::SetViewDirection(const Vector3S &refDir)
 {
-	Vector3 dirNormalized;
+	Vector3S dirNormalized;
 
-	dirNormalized = refDir.Normalize(); //direction to target
+	dirNormalized = refDir.Normalized(); //direction to target
 
 	this->vertAngle = Radian(asinf(-dirNormalized.y)); //invert y because positive angles will rotate the camera downwards
 
@@ -65,5 +65,5 @@ void Camera::NormalizeAngles()
 		this->horzAngle += 360.0f;
 
 	//avoid gimbal lock
-	this->vertAngle = CLAMP(this->vertAngle, -85.0f, 85.0f);
+	this->vertAngle = Clamp(this->vertAngle.value, -85.0f, 85.0f);
 }

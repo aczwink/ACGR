@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2017-2019 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of ACGR.
  *
@@ -26,7 +26,7 @@ namespace ACGR
 	{
 	public:
 		//Members
-		ACStdLib::Math::Vector3 diffuseColor;
+		StdXX::Math::Vector3S diffuseColor;
 		bool useAlphaBlending;
 
 		//Constructor

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2017-2019 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of ACGR.
  *
@@ -26,7 +26,7 @@
 #include "../../shaders/Frame.h"
 #include "../../shaders/Normals/FS.h"
 #include "../../shaders/Normals/GS.h"
-#include "../../shaders/Normals/VS.h"
+#include "../../shaders/Normals/VS.hpp"
 #include "../../shaders/SkyBox.h"
 //Namespaces
 using namespace ACGR;
@@ -77,7 +77,7 @@ void DeviceRenderer::EnableDebugMode(bool state)
 	this->debugMode = state;
 }
 
-void DeviceRenderer::InformDeviceStateChanged(const Size &size)
+void DeviceRenderer::InformDeviceStateChanged(const SizeS &size)
 {
 	this->deviceSize = size;
 
@@ -125,7 +125,7 @@ void DeviceRenderer::RenderFrame(const SceneManager &sceneManager, const Camera 
 	this->refDeviceContext.ClearColorBuffer(Color(0.1f, 0.1f, 0.1f, 1));
 	this->refDeviceContext.ClearDepthBuffer();
 
-	this->Render(*sceneManager.GetRootNode(), Matrix4x4::Identity());
+	this->Render(*sceneManager.GetRootNode(), Matrix4S::Identity());
 
 	this->EndRendering();
 }
@@ -176,24 +176,24 @@ void DeviceRenderer::EndRendering()
 void DeviceRenderer::InitPrograms()
 {
 	this->pFrameProgram = this->shaderCompiler.CompileStaticProgram(SHADER_ARGS(frame));
-	this->debug.pNormalsProgram = this->shaderCompiler.CompileStaticProgram(SHADER_ARGS_WITH_GEOMETRY(normals));
+	this->debug.normalsProgram = this->shaderCompiler.CompileStaticProgram(SHADER_ARGS_WITH_GEOMETRY(normals));
 
 	this->meshInputLayout.AddAttribute3(); //pos
 	this->meshInputLayout.AddAttribute3(); //normal
 	this->meshInputLayout.AddAttribute2(); //texcoords
 }
 
-void DeviceRenderer::Render(const Mesh *pMesh, const Matrix4x4 &model)
+void DeviceRenderer::Render(const Mesh *pMesh, const Matrix4S &model)
 {
 	//program
 	ShaderProgram *meshProgram = this->shaderCompiler.GetMeshProgram(this->current.material, this->activeLights);
 
-	meshProgram->SetUniformValue(UNIFORM_ID_MESH_MODEL, model);
-	meshProgram->SetUniformValue(UNIFORM_ID_MESH_MVP, this->VP * model);
+	meshProgram->SetUniformValue(meshProgram->GetUniformId(u8"model"), model);
+	meshProgram->SetUniformValue(meshProgram->GetUniformId(u8"MVP"), this->VP * model);
 	meshProgram->SetUniformValue(meshProgram->GetUniformId("material.diffuseColor"), this->current.material->diffuseColor);
 
-	meshProgram->SetUniformValue(UNIFORM_ID_MESH_CAMERA_POS, this->current.camera->position);
-	meshProgram->SetUniformValue(UNIFORM_ID_MESH_AMBIENT_LIGHT, this->current.sceneManager->ambientLight);
+	meshProgram->SetUniformValue(meshProgram->GetUniformId(u8"cameraPos"), this->current.camera->position);
+	meshProgram->SetUniformValue(meshProgram->GetUniformId(u8"ambientLight"), this->current.sceneManager->ambientLight);
 
 	uint32 lightCounter = 0;
 	for(const Light *const& light : this->activeLights)
@@ -227,19 +227,19 @@ void DeviceRenderer::Render(const Mesh *pMesh, const Matrix4x4 &model)
 
 	if(this->debugMode)
 	{
-		this->debug.pNormalsProgram->SetUniformValue(UNIFORM_ID_MESH_MODEL, model);
-		this->debug.pNormalsProgram->SetUniformValue(UNIFORM_ID_MESH_MVP, this->VP * model);
-		this->debug.pNormalsProgram->SetUniformValue(this->debug.pNormalsProgram->GetUniformId("view"), this->view);
-		this->debug.pNormalsProgram->SetUniformValue(this->debug.pNormalsProgram->GetUniformId("projection"), this->projection);
+		this->debug.normalsProgram->SetUniformValue(this->debug.normalsProgram->GetUniformId(u8"model"), model);
+		this->debug.normalsProgram->SetUniformValue(this->debug.normalsProgram->GetUniformId(u8"MVP"), this->VP * model);
+		this->debug.normalsProgram->SetUniformValue(this->debug.normalsProgram->GetUniformId("view"), this->view);
+		this->debug.normalsProgram->SetUniformValue(this->debug.normalsProgram->GetUniformId("projection"), this->projection);
 
-		this->refDeviceContext.SetProgram(this->debug.pNormalsProgram);
+		this->refDeviceContext.SetProgram(this->debug.normalsProgram);
 		this->refDeviceContext.DrawTrianglesIndexed();
 	}
 }
 
-void DeviceRenderer::Render(const SceneNode &refNode, const Matrix4x4 &refM)
+void DeviceRenderer::Render(const SceneNode &refNode, const Matrix4S &refM)
 {
-	Matrix4x4 transformation;
+	Matrix4S transformation;
 
 	transformation = refNode.GetTransformation() * refM;
 
@@ -280,7 +280,7 @@ void DeviceRenderer::RenderMesh(const Mesh *pMesh)
 	this->refDeviceContext.DrawTrianglesIndexed();
 }
 
-void DeviceRenderer::RenderShadowMap(const Light *pLight, const SceneNode &refNode, const Matrix4x4 &refM)
+void DeviceRenderer::RenderShadowMap(const Light *pLight, const SceneNode &refNode, const Matrix4S &refM)
 {
 	Camera lightCam;
 
@@ -301,7 +301,7 @@ void DeviceRenderer::RenderShadowMap(const Light *pLight, const SceneNode &refNo
 	//lightVP
 	lightCam.position = pLight->position;
 	lightCam.SetViewDirection(pLight->direction);
-	refLightInfo.lightVP = Matrix4x4::OrthographicRH(-10, 10, -10, 10, 0.1f, 1000.0f) * lightCam.GetViewMatrix();
+	refLightInfo.lightVP = Matrix4S::OrthographicRH(-10, 10, -10, 10, 0.1f, 1000.0f) * lightCam.GetViewMatrix();
 
 	this->shadowPass.RenderDepthMap(refLightInfo, refNode, refM);
 }
@@ -403,9 +403,9 @@ void DeviceRenderer::SetupMeshObjects(const Mesh *pMesh, SMeshObjects &refMeshOb
 	refMeshObjects.pIndexBuffer = this->refDeviceContext.CreateIndexBuffer();
 
 	if(pMesh->GetNumberOfVertices() > UINT16_MAX) //refMeshObjects.pIndexBuffer->Allocate(pMesh->GetNumberOfIndices(), pMesh->GetIndices32());
-		NOT_IMPLEMENTED_ERROR
+		NOT_IMPLEMENTED_ERROR;
 	else
-		refMeshObjects.pIndexBuffer->Allocate(pMesh->GetNumberOfIndices(), pMesh->GetIndices16());
+		refMeshObjects.pIndexBuffer->Allocate16(pMesh->GetNumberOfIndices(), pMesh->GetIndices16());
 
 	//input state
 	refMeshObjects.pInputState = this->refDeviceContext.CreateInputState();
@@ -415,7 +415,6 @@ void DeviceRenderer::SetupMeshObjects(const Mesh *pMesh, SMeshObjects &refMeshOb
 
 void DeviceRenderer::SetupFrameBuffer()
 {
-	Size screenSize;
 	InputLayout inputLayout;
 
 	static const float32 planePositions[][2] =
@@ -432,10 +431,8 @@ void DeviceRenderer::SetupFrameBuffer()
 		};
 
 	//set up diffuseColor buffer for frame buffer
-	screenSize = Size::GetScreenSize();
-
 	this->pFrameColorBuffer = this->refDeviceContext.CreateTexture2D();
-	this->pFrameColorBuffer->AllocateRGB(screenSize, nullptr);
+	//this->pFrameColorBuffer->AllocateRGB(screenSize.Cast<uint16>(), nullptr);
 	this->pFrameColorBuffer->SetMaximumMipMapLevel(0);
 
 	//set up frame buffer

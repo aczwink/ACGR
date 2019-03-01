@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2017-2019 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of ACGR.
  *
@@ -19,20 +19,15 @@
 //Class header
 #include "DisplayWidget.hpp"
 //Namespaces
-using namespace ACStdLib::XML;
+using namespace StdXX::XML;
 
 //Prototypes
 void ReadScene(InputStream &inputStream, SceneManager &sceneManager);
 
 //Constructor
-DisplayWidget::DisplayWidget(WidgetContainer *parent) : RenderTargetWidget(parent)
+DisplayWidget::DisplayWidget() : RenderTargetWidget()
 {
 	this->haveRenderedImage = false;
-
-	this->renderer = Renderer::CreateInstance(RendererType::Device, *this->deviceContext);
-	this->rayTracer = Renderer::CreateInstance(RendererType::RayTracer, *this->deviceContext);
-
-	this->InitScene();
 }
 
 //Destructor
@@ -46,32 +41,6 @@ DisplayWidget::~DisplayWidget()
 
 	delete this->renderer;
 	delete this->rayTracer;
-}
-
-//Eventhandlers
-void DisplayWidget::OnPaint()
-{
-	this->UpdateScene();
-
-	if(!this->haveRenderedImage)
-	{
-		this->renderer->RenderFrame(this->sceneMgr, *this->camera);
-		this->deviceContext->SwapBuffers();
-	}
-}
-
-void DisplayWidget::OnResized()
-{
-	RenderTargetWidget::OnResized();
-
-	this->haveRenderedImage = false;
-
-	this->renderer->InformDeviceStateChanged(this->GetSize());
-	this->rayTracer->InformDeviceStateChanged(this->GetSize());
-
-	this->camera->SetAspectRatio(this->GetSize().width / (float32)this->GetSize().height);
-
-	this->Repaint();
 }
 
 //Private methods
@@ -116,7 +85,8 @@ float64 DisplayWidget::ParseAngle(const String &string)
 	if(string.IsEmpty())
 		return 0;
 
-	if(string[string.GetLength() - 1] == 0xB0) //degree sign
+	const uint8 degree[] = {0xC2, 0xB0, 0}; //degree sign
+	if(string.EndsWith((const char*)degree))
 	{
 		String tmp;
 
@@ -130,7 +100,7 @@ float64 DisplayWidget::ParseAngle(const String &string)
 
 void DisplayWidget::ParseRotation(const Element &element, SceneNode *node)
 {
-	Vector3 v;
+	Vector3S v;
 
 	if(element.HasAttribute("rotate_ypr"))
 	{
@@ -139,27 +109,14 @@ void DisplayWidget::ParseRotation(const Element &element, SceneNode *node)
 	}
 }
 
-Vector3 DisplayWidget::ParseVec3(const String &refString)
+Vector3S DisplayWidget::ParseVec3(const String& string)
 {
-	uint8 i;
-	uint16 j;
-	String tmp;
-	Vector3 result;
+	Vector3S result;
 
-	j = 0;
-	for(i = 0; i < 3; i++)
+	DynamicArray<String> parts = string.Split(u8",");
+	for(uint8 i = 0; i < 3; i++)
 	{
-		tmp = "";
-		while(j < refString.GetLength())
-		{
-			if(refString[j] == ',')
-				break;
-			tmp += (uint32)refString[j];
-			j++;
-		}
-		j++;
-
-		result.e[i] = (float32)tmp.ToFloat();
+		result.e[i] = (float32)parts[i].ToFloat();
 	}
 
 	return result;
@@ -174,7 +131,7 @@ void DisplayWidget::ReadScene(InputStream &inputStream)
 		this->sceneMgr.ambientLight = this->ParseVec3(scene.GetAttribute("ambientLight"));
 
 	if(scene.HasAttribute("skybox"))
-		this->sceneMgr.SetSkyBox(To8BitString(scene.GetAttribute("skybox")));
+		this->sceneMgr.SetSkyBox(scene.GetAttribute("skybox"));
 
 	this->sceneMgr.SetRootNode(this->ReadSceneNode(scene));
 
@@ -185,9 +142,9 @@ SceneNode *DisplayWidget::ReadSceneNode(const XML::Element &element)
 {
 	SceneNode *node = new SceneNode;
 
-	for(const ANode *const& child : element)
+	for(const Node *const& child : element)
 	{
-		if(child->GetType() == ENodeType::NODE_TYPE_ELEMENT)
+		if(child->GetType() == NodeType::Element)
 		{
 			const Element &childElement = (const Element &)*child;
 
@@ -249,9 +206,7 @@ SceneNode *DisplayWidget::ReadSceneNode(const XML::Element &element)
 				//advanced values
 				if(childElement.HasAttribute("lookat"))
 				{
-					Vector3 target;
-
-					target = ParseVec3(childElement.GetAttribute("lookat"));
+					Vector3S target = ParseVec3(childElement.GetAttribute("lookat"));
 
 					pLight->LookAt(target);
 				}
@@ -260,14 +215,12 @@ SceneNode *DisplayWidget::ReadSceneNode(const XML::Element &element)
 			}
 			else if(childElement.GetName() == "Node")
 			{
-				Vector3 v;
-
 				SceneNode *child = ReadSceneNode(childElement);
 
 				//first scale
 				if(childElement.HasAttribute("scale"))
 				{
-					v = ParseVec3(childElement.GetAttribute("scale"));
+					Vector3S v = ParseVec3(childElement.GetAttribute("scale"));
 					child->Scale(v.x, v.y, v.z);
 				}
 
@@ -277,7 +230,7 @@ SceneNode *DisplayWidget::ReadSceneNode(const XML::Element &element)
 				//then translate
 				if(childElement.HasAttribute("translate"))
 				{
-					v = ParseVec3(childElement.GetAttribute("translate"));
+					Vector3S v = ParseVec3(childElement.GetAttribute("translate"));
 					child->Translate(v.x, v.y, v.z);
 				}
 
@@ -295,5 +248,44 @@ void DisplayWidget::UpdateScene()
 	this->clock.Start();
 
 	//update camera
-	this->camera->Update(dt);
+	//this->camera->Update(dt);
+	//GetMouseButtonState(MouseButton::Left)
+	// if(GetKeyState(KeyCode::Shift_Left) || GetKeyState(KeyCode::Shift_Right)) //if(GetKeyState(KeyCode::W))
+}
+
+//Eventhandlers
+void DisplayWidget::OnPaint(UI::Event& event)
+{
+	this->UpdateScene();
+
+	if(!this->haveRenderedImage)
+	{
+		this->renderer->RenderFrame(this->sceneMgr, *this->camera);
+		this->deviceContext->SwapBuffers();
+	}
+	event.Accept();
+}
+
+void DisplayWidget::OnRealized()
+{
+	Widget::OnRealized();
+
+	this->renderer = Renderer::CreateInstance(RendererType::Device, *this->deviceContext);
+	this->rayTracer = Renderer::CreateInstance(RendererType::RayTracer, *this->deviceContext);
+
+	this->InitScene();
+}
+
+void DisplayWidget::OnResized()
+{
+	RenderTargetWidget::OnResized();
+
+	this->haveRenderedImage = false;
+
+	this->renderer->InformDeviceStateChanged(this->GetSize().Cast<float32>());
+	this->rayTracer->InformDeviceStateChanged(this->GetSize().Cast<float32>());
+
+	this->camera->SetAspectRatio(this->GetSize().width / (float32)this->GetSize().height);
+
+	this->Repaint();
 }

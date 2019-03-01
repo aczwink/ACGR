@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2017-2019 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of ACGR.
  *
@@ -19,12 +19,12 @@
 //Local
 #include "DemoMainWindow.hpp"
 
-int32 Main(const String &programName, const LinkedList<String> &args)
+int32 Main(const String& programName, const FixedArray<String>& args)
 {
-	EventQueue &eventQueue = EventQueue::GetGlobalQueue();
+	StandardEventQueue eventQueue;
+    DemoMainWindow *mainWindow = new DemoMainWindow(eventQueue);
 
-    DemoMainWindow *mainWindow = new DemoMainWindow;
-
+    mainWindow->Maximize();
 	mainWindow->Show();
 
 	while(eventQueue.ProcessEvents(false))

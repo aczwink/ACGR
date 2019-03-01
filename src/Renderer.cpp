@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2017-2019 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of ACGR.
  *
@@ -25,7 +25,7 @@
 using namespace ACGR;
 
 //Global functions
-Renderer *Renderer::CreateInstance(RendererType type, ACStdLib::Rendering::DeviceContext &deviceContext)
+Renderer *Renderer::CreateInstance(RendererType type, StdXX::Rendering::DeviceContext &deviceContext)
 {
 	switch(type)
 	{

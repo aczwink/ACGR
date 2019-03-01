@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2017-2019 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of ACGR.
  *
@@ -16,9 +16,9 @@
  * You should have received a copy of the GNU General Public License
  * along with ACGR.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <ACStdLib.hpp>
-using namespace ACStdLib;
-using namespace ACStdLib::UI;
+#include <Std++.hpp>
+using namespace StdXX;
+using namespace StdXX::UI;
 //Local
 #include "DisplayWidget.hpp"
 
@@ -26,7 +26,7 @@ class DemoMainWindow : public MainAppWindow
 {
 public:
     //Constructor
-    DemoMainWindow();
+    DemoMainWindow(EventQueue& eventQueue);
 
     //Inline
     inline void Update()

@@ -21,7 +21,7 @@
 //Namespaces
 using namespace ACGR;
 
-constexpr float32 phi = (1 + sqrtf(5)) / 2;
+const float32 phi = (1 + sqrtf(5)) / 2;
 
 static const Mesh::Vertex g_icosahedronVertices[] =
 {

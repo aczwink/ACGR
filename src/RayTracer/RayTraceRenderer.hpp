@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2017-2019 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of ACGR.
  *
@@ -21,9 +21,9 @@
 #include <ACGR/SceneNode.hpp>
 #include "../Internal/ShaderCompiler.hpp"
 //Namespaces
-using namespace ACStdLib;
-using namespace ACStdLib::Math;
-using namespace ACStdLib::Rendering;
+using namespace StdXX;
+using namespace StdXX::Math;
+using namespace StdXX::Rendering;
 
 namespace ACGR
 {
@@ -35,9 +35,9 @@ namespace ACGR
 		const Mesh *pMesh;
 		const Material *pMaterial;
 		uint32 faceIndex;
-		vec4f32 intersectionPoint;
-		vec4f32 end; //in world coordinates
-		vec4f32 normal;
+		Vector4S intersectionPoint;
+		Vector4S end; //in world coordinates
+		Vector4S normal;
 
 		//Constructor
 		inline Ray()
@@ -64,7 +64,7 @@ namespace ACGR
 
 		//Methods
 		void EnableDebugMode(bool state);
-		void InformDeviceStateChanged(const ACStdLib::Size &refSize);
+		void InformDeviceStateChanged(const StdXX::Math::SizeS &refSize);
 		void RenderFrame(const SceneManager &refSceneMgr, const Camera &camera);
 
 	private:
@@ -75,22 +75,22 @@ namespace ACGR
 		InputState *pPlaneInputState;
 		VertexBuffer *pPlaneVertexBuffer;
 		Texture2D *pFrame;
-		Vector3 *framePictureArray;
-		Size frameSize;
+		Vector3S *framePictureArray;
+		SizeS frameSize;
 		StaticThreadPool threadPool;
 
 		//Methods
-		vec4f32 ComputeLight(const Ray &refRay, const Light &refLight, const vec4f32 &refNormal);
-		vec4f32 ComputeLights(const Ray &refRay, const vec4f32 &refNormal, const Map<Light *, SceneNode *> &refLights, const SceneManager &refSceneMgr);
-		Vector3 ComputeShading(const Ray &refRay, const Map<Light *, SceneNode *> &refLights, const SceneManager &refSceneMgr);
-		Vector3 ComputeSkyColor();
-		void RenderLines(uint16 y, uint16 yMax, const Matrix4x4 &frustum, const Map<Light *, SceneNode *> &refLights, const SceneManager &refSceneMgr, const Camera &refCamera);
+		Vector4S ComputeLight(const Ray &refRay, const Light &refLight, const Vector4S &refNormal);
+		Vector4S ComputeLights(const Ray &refRay, const Vector4S &refNormal, const Map<Light *, SceneNode *> &refLights, const SceneManager &refSceneMgr);
+		Vector3S ComputeShading(const Ray &refRay, const Map<Light *, SceneNode *> &refLights, const SceneManager &refSceneMgr);
+		Vector3S ComputeSkyColor();
+		void RenderLines(uint16 y, uint16 yMax, const Matrix4S &frustum, const Map<Light *, SceneNode *> &refLights, const SceneManager &refSceneMgr, const Camera &refCamera);
 		void SetupPlane();
-		void ShootRay(const Mesh &refMesh, const Material *pMaterial, const Matrix4x4 &refM, const vec4f32 &refOrigin, const vec4f32 &refDir, Ray &refRay);
-		void ShootRay(const SceneNode &refNode, const Matrix4x4 &refM, const vec4f32 &refOrigin, const vec4f32 &refDir, Ray &refRay);
+		void ShootRay(const Mesh &refMesh, const Material *pMaterial, const Matrix4S &refM, const Vector4S &refOrigin, const Vector4S &refDir, Ray &refRay);
+		void ShootRay(const SceneNode &refNode, const Matrix4S &refM, const Vector4S &refOrigin, const Vector4S &refDir, Ray &refRay);
 
 		//Inline
-		inline vec4f32 Transform(const vec4f32 &refCoef, const vec4f32 &refVec0, const vec4f32 &refVec1, const vec4f32 &refVec2, const Matrix4x4 &refTransform) const
+		inline Vector4S Transform(const Vector4S &refCoef, const Vector4S &refVec0, const Vector4S &refVec1, const Vector4S &refVec2, const Matrix4S &refTransform) const
 		{
 			return refCoef.x * (refTransform * refVec0) + refCoef.y * (refTransform * refVec1) + refCoef.z * (refTransform * refVec2);
 		}

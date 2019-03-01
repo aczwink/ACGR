@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2017-2019 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of ACGR.
  *
@@ -21,16 +21,16 @@
 //Local
 #include <ACGR/Cameras/FreeFlyCamera.hpp>
 //Namespaces
-using namespace ACStdLib;
-using namespace ACStdLib::Math;
-using namespace ACStdLib::XML;
+using namespace StdXX;
+using namespace StdXX::Math;
+using namespace StdXX::XML;
 using namespace ACGR;
 
 //Constructor
 SceneNode::SceneNode()
 {
 	this->pParent = nullptr;
-	this->transformation = Matrix4x4::Identity();
+	this->transformation = Matrix4S::Identity();
 }
 
 //Destructor
@@ -58,10 +58,10 @@ SceneNode::~SceneNode()
 }
 
 //Public methods
-Matrix4x4 SceneNode::ComputeModelMatrix() const
+Matrix4S SceneNode::ComputeModelMatrix() const
 {
 	SceneNode *pNode;
-	Matrix4x4 model;
+	Matrix4S model;
 
 	model = this->transformation;
 	pNode = this->pParent;

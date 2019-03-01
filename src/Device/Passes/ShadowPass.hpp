@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2017-2019 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of ACGR.
  *
@@ -17,13 +17,13 @@
  * along with ACGR.  If not, see <http://www.gnu.org/licenses/>.
  */
 #pragma once
-#include <ACStdLib.hpp>
+#include <Std++.hpp>
 //Local
 #include <ACGR/SceneNode.hpp>
 //Namespaces
-using namespace ACStdLib;
-using namespace ACStdLib::Math;
-using namespace ACStdLib::Rendering;
+using namespace StdXX;
+using namespace StdXX::Math;
+using namespace StdXX::Rendering;
 
 namespace ACGR
 {
@@ -41,16 +41,21 @@ namespace ACGR
 		~ShadowPass();
 
 		//Methods
-		void RenderDepthMap(SLightInfo &refLightInfo, const SceneNode &refNode, const Matrix4x4 &refM);
+		void RenderDepthMap(SLightInfo &refLightInfo, const SceneNode &refNode, const Matrix4S &refM);
 
 	private:
 		//Members
-		ShaderProgram *pShadowProgram;
+		ShaderProgram *shaderProgram;
 		IFrameBuffer *pFrameBuffer;
+		struct
+		{
+			uint32 lightMatrix;
+			uint32 model;
+		} uniformLocations;
 
 		DeviceRenderer &refRenderer;
 
 		//Methods
-		void RenderNode(const SceneNode &refNode, const Matrix4x4 &refM);
+		void RenderNode(const SceneNode &refNode, const Matrix4S &refM);
 	};
 }

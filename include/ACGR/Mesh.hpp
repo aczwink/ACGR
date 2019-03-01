@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2017-2019 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of ACGR.
  *
@@ -17,7 +17,7 @@
  * along with ACGR.  If not, see <http://www.gnu.org/licenses/>.
  */
 #pragma once
-#include <ACStdLib.hpp>
+#include <Std++.hpp>
 
 namespace ACGR
 {
@@ -29,9 +29,9 @@ namespace ACGR
 	public:
 		struct Vertex
 		{
-			ACStdLib::Math::Vector3 position;
-			ACStdLib::Math::Vector3 normal;
-			ACStdLib::Math::Vector2 textureCoords;
+			StdXX::Math::Vector3S position;
+			StdXX::Math::Vector3S normal;
+			StdXX::Math::Vector2S textureCoords;
 		};
 
 		//Constructor
@@ -45,7 +45,7 @@ namespace ACGR
 		void SetVertices(uint32 nVertices, const Vertex *pVertices);
 
 		//Inline
-		inline const ACStdLib::Math::AxisAlignedBox &GetBoundingBox() const
+		inline const StdXX::Math::AxisAlignedBox<float32> &GetBoundingBox() const
 		{
 			return this->bbox;
 		}
@@ -89,7 +89,7 @@ namespace ACGR
 
 	protected:
 		//Members
-		ACStdLib::Math::AxisAlignedBox bbox;
+		StdXX::Math::AxisAlignedBox<float32> bbox;
 
 		//Methods
 		void ComputeBBox();

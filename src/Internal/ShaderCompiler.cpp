@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2017-2019 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of ACGR.
  *
@@ -20,7 +20,7 @@
 #include "ShaderCompiler.hpp"
 //Shaders
 #include "../../shaders/Mesh/FS.h"
-#include "../../shaders/Mesh/VS.h"
+#include "../../shaders/Mesh/VS.hpp"
 
 //Destructor
 ShaderCompiler::~ShaderCompiler()
@@ -41,7 +41,7 @@ ShaderProgram *ShaderCompiler::CompileStaticProgram(const char *vsShaderCode, ui
 	return program;
 }
 
-ShaderProgram *ShaderCompiler::GetMeshProgram(const Material *material, const FiniteSet<const Light *> &activeLights)
+ShaderProgram *ShaderCompiler::GetMeshProgram(const Material *material, const BinaryTreeSet<const Light *> &activeLights)
 {
 	MeshParams mp(material, activeLights);
 	auto it = this->meshPrograms.Find(mp);
@@ -53,7 +53,7 @@ ShaderProgram *ShaderCompiler::GetMeshProgram(const Material *material, const Fi
 
 	//set shader constants
 	program->SetUniformValue(program->GetUniformId("material.tex"), (int32)TEXTURE_UNIT_MATERIAL);
-	program->SetUniformValue(UNIFORM_ID_MESH_ENVIRONMENT, (int32)TEXTURE_UNIT_ENVIRONMENT);
+	program->SetUniformValue(program->GetUniformId(u8"environment"), (int32)TEXTURE_UNIT_ENVIRONMENT);
 
 	return program;
 }
@@ -65,7 +65,6 @@ ShaderProgram *ShaderCompiler::CompileMeshProgram(const MeshParams &meshParams)
 
 	//header
 	fs += "#version 330 core\n";
-	fs += "#extension GL_ARB_explicit_uniform_location : require\n";
 
 	//constants
 	fs += "const uint NUM_LIGHTS = " + ToString_8Bit(meshParams.activeLights.GetNumberOfElements()) + "u;";
@@ -98,9 +97,9 @@ struct Material
 
 	//uniforms
 	fs += R"(
-layout (location = 2) uniform vec3 ambientLight;
-layout (location = 3) uniform vec3 cameraPos;
-layout (location = 4) uniform samplerCube environment;
+uniform vec3 ambientLight;
+uniform vec3 cameraPos;
+uniform samplerCube environment;
 uniform Material material;
 )";
 	if(!meshParams.activeLights.IsEmpty())
@@ -179,19 +178,19 @@ ShaderProgram *ShaderCompiler::CompileProgram(const char *vsShaderCode, uint32 v
 	BufferInputStream vsInput(reinterpret_cast<const byte *>(vsShaderCode), vsShaderSize);
 	if(!pVertexShader->Compile(vsInput))
 	{
-		ASSERT_MSG(false, pVertexShader->GetCompilationLog().GetC_Str());
+		ASSERT(false, pVertexShader->GetCompilationLog());
 	}
 	BufferInputStream fsInput(reinterpret_cast<const byte *>(fsShaderCode), fsShaderSize);
 	if(!pFragmentShader->Compile(fsInput))
 	{
-		ASSERT_MSG(false, pFragmentShader->GetCompilationLog().GetC_Str());
+		ASSERT(false, pFragmentShader->GetCompilationLog());
 	}
 	if(pGeometryShader)
 	{
 		BufferInputStream gsInput(reinterpret_cast<const byte *>(gsShaderCode), gsShaderSize);
 		if(!pGeometryShader->Compile(gsInput))
 		{
-			ASSERT_MSG(false, pGeometryShader->GetCompilationLog().GetC_Str());
+			ASSERT(false, pGeometryShader->GetCompilationLog());
 		}
 	}
 

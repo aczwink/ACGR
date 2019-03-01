@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2017-2019 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of ACGR.
  *
@@ -17,19 +17,19 @@
  * along with ACGR.  If not, see <http://www.gnu.org/licenses/>.
  */
 #pragma once
-#include <ACStdLib.hpp>
+#include <Std++.hpp>
 #include <ACGR.hpp>
-using namespace ACStdLib;
-using namespace ACStdLib::Math;
-using namespace ACStdLib::UI;
-using namespace ACStdLib::Rendering;
+using namespace StdXX;
+using namespace StdXX::Math;
+using namespace StdXX::UI;
+using namespace StdXX::Rendering;
 using namespace ACGR;
 
 class DisplayWidget : public RenderTargetWidget
 {
 public:
     //Constructor
-    DisplayWidget(WidgetContainer *parent);
+    DisplayWidget();
 
     //Destructor
     ~DisplayWidget();
@@ -66,14 +66,15 @@ private:
 	Map<String, Mesh *> meshes;
 
 	//Eventhandlers
-	void OnPaint();
-	void OnResized();
+	void OnPaint(UI::Event& event) override;
+	void OnRealized() override;
+	void OnResized() override;
 
 	//Methods
 	void InitScene();
 	float64 ParseAngle(const String &string);
 	void ParseRotation(const XML::Element &element, SceneNode *node);
-	Vector3 ParseVec3(const String &refString);
+	Vector3S ParseVec3(const String &string);
 	void ReadScene(InputStream &inputStream);
 	SceneNode *ReadSceneNode(const XML::Element &element);
 	void UpdateScene();

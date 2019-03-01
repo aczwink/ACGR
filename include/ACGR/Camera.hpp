@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2017-2019 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of ACGR.
  *
@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with ACGR.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <ACStdLib.hpp>
+#include <Std++.hpp>
 
 namespace ACGR
 {
@@ -27,34 +27,34 @@ namespace ACGR
 		Camera();
 
 		//Members
-		ACStdLib::Math::Vector3 position;
+		StdXX::Math::Vector3S position;
 
 		//Methods
-		ACStdLib::Math::Matrix4x4 GetPerspectiveMatrix() const;
-		void SetViewDirection(const ACStdLib::Math::Vector3 &refDir);
+		StdXX::Math::Matrix4S GetPerspectiveMatrix() const;
+		void SetViewDirection(const StdXX::Math::Vector3S &refDir);
 
 		//Inline
-		inline ACStdLib::Math::Vector3 GetForwardDirection() const
+		inline StdXX::Math::Vector3S GetForwardDirection() const
 		{
-			return this->GetInverseOrientation() * ACStdLib::Math::Vector4(0, 0, 1, 1);
+			return this->GetInverseOrientation() * StdXX::Math::Vector4S(0, 0, 1, 1);
 		}
 
-		inline ACStdLib::Math::Matrix4x4 GetViewMatrix() const
+		inline StdXX::Math::Matrix4S GetViewMatrix() const
 		{
-			return this->GetOrientation() * ACStdLib::Math::Matrix4x4::Translation(-this->position);
+			return this->GetOrientation() * StdXX::Math::Matrix4S::Translation(-this->position);
 		}
 
-		inline ACStdLib::Math::Vector3 GetRightDirection() const
+		inline StdXX::Math::Vector3S GetRightDirection() const
 		{
-			return this->GetInverseOrientation() * ACStdLib::Math::Vector4(1, 0, 0, 1);
+			return this->GetInverseOrientation() * StdXX::Math::Vector4S(1, 0, 0, 1);
 		}
 
-		inline void LookAt(const ACStdLib::Math::Vector3 &refTarget)
+		inline void LookAt(const StdXX::Math::Vector3S &refTarget)
 		{
 			this->SetViewDirection(refTarget - this->position);
 		}
 
-		inline void Rotate(const ACStdLib::Degree &refDx, const ACStdLib::Degree &refDy)
+		inline void Rotate(const StdXX::Math::Degree<float32> &refDx, const StdXX::Math::Degree<float32> &refDy)
 		{
 			this->horzAngle += refDx;
 			this->vertAngle += refDy;
@@ -67,21 +67,21 @@ namespace ACGR
 			this->aspectRatio = aspectRatio;
 		}
 
-		inline void SetFieldOfView(const ACStdLib::Degree &refFieldOfView)
+		inline void SetFieldOfView(const StdXX::Math::Degree<float32> &refFieldOfView)
 		{
 			this->fieldOfViewY = refFieldOfView;
 		}
 
-		inline void Translate(const ACStdLib::Math::Vector3 &refVector)
+		inline void Translate(const StdXX::Math::Vector3S &refVector)
 		{
 			this->position += refVector;
 		}
 
 	private:
 		//Members
-		ACStdLib::Degree horzAngle; //Clockwise (straight = 0), range [0, 360]
-		ACStdLib::Degree vertAngle; //Clockwise (straight = 0, positive values = look down), range [-85, 85]
-		ACStdLib::Degree fieldOfViewY;
+		StdXX::Math::Degree<float32> horzAngle; //Clockwise (straight = 0), range [0, 360]
+		StdXX::Math::Degree<float32> vertAngle; //Clockwise (straight = 0, positive values = look down), range [-85, 85]
+		StdXX::Math::Degree<float32> fieldOfViewY;
 		float32 aspectRatio;
 		float32 nearPlane;
 		float32 farPlane;
@@ -90,14 +90,14 @@ namespace ACGR
 		void NormalizeAngles();
 
 		//Inline
-		inline ACStdLib::Math::Matrix4x4 GetInverseOrientation() const
+		inline StdXX::Math::Matrix4S GetInverseOrientation() const
 		{
-			return ACStdLib::Math::Matrix4x4::RotationYawPitchRoll(-this->horzAngle, -this->vertAngle, 0);
+			return StdXX::Math::Matrix4S::RotationYawPitchRoll(-this->horzAngle, -this->vertAngle, 0);
 		}
 
-		inline ACStdLib::Math::Matrix4x4 GetOrientation() const
+		inline StdXX::Math::Matrix4S GetOrientation() const
 		{
-			return ACStdLib::Math::Matrix4x4::RotationYawPitchRoll(this->horzAngle, this->vertAngle, 0);
+			return StdXX::Math::Matrix4S::RotationYawPitchRoll(this->horzAngle, this->vertAngle, 0);
 		}
 	};
 }

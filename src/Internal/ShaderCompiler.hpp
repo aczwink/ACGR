@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2017-2019 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of ACGR.
  *
@@ -17,24 +17,15 @@
  * along with ACGR.  If not, see <http://www.gnu.org/licenses/>.
  */
 #pragma once
-#include <ACStdLib.hpp>
+#include <Std++.hpp>
 #include <ACGR/Light.hpp>
 #include <ACGR/Material.hpp>
-using namespace ACStdLib;
-using namespace ACStdLib::Rendering;
+using namespace StdXX;
+using namespace StdXX::Rendering;
 using namespace ACGR;
 
 #define SHADER_ARGS(inname) shader_ ## inname ## _vs, sizeof(shader_ ## inname ## _vs), shader_ ## inname ## _fs, sizeof(shader_ ## inname ## _fs)
 #define SHADER_ARGS_WITH_GEOMETRY(inname) SHADER_ARGS(inname), shader_ ## inname ## _gs, sizeof(shader_ ## inname ## _gs)
-
-enum UniformIds_Mesh
-{
-	UNIFORM_ID_MESH_MODEL,
-	UNIFORM_ID_MESH_MVP,
-	UNIFORM_ID_MESH_AMBIENT_LIGHT,
-	UNIFORM_ID_MESH_CAMERA_POS,
-	UNIFORM_ID_MESH_ENVIRONMENT,
-};
 
 enum TextureUnitAllocation_Mesh
 {
@@ -51,9 +42,9 @@ class ShaderCompiler
 	{
 	public:
 		const Material *material;
-		const FiniteSet<const Light *> &activeLights;
+		const BinaryTreeSet<const Light *> &activeLights;
 
-		inline MeshParams(const Material *material, const FiniteSet<const Light *> &activeLights) : material(material), activeLights(activeLights)
+		inline MeshParams(const Material *material, const BinaryTreeSet<const Light *> &activeLights) : material(material), activeLights(activeLights)
 		{
 		}
 
@@ -84,7 +75,7 @@ public:
 
 	//Methods
 	ShaderProgram *CompileStaticProgram(const char *vsShaderCode, uint32 vsShaderSize, const char *fsShaderCode, uint32 fsShaderSize, const char *gsShaderCode = nullptr, uint32 gsShaderSize = 0);
-	ShaderProgram *GetMeshProgram(const Material *material, const FiniteSet<const Light *> &activeLights);
+	ShaderProgram *GetMeshProgram(const Material *material, const BinaryTreeSet<const Light *> &activeLights);
 
 private:
 	//Members

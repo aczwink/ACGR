@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2017-2019 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of ACGR.
  *
@@ -51,21 +51,21 @@ RayTraceRenderer::~RayTraceRenderer()
 void RayTraceRenderer::EnableDebugMode(bool state)
 {
 }
-void RayTraceRenderer::InformDeviceStateChanged(const ACStdLib::Size &refSize)
+void RayTraceRenderer::InformDeviceStateChanged(const StdXX::Math::SizeS &refSize)
 {
-	this->pFrame->AllocateRGB(refSize, nullptr);
+	this->pFrame->AllocateRGB(refSize.Cast<uint16>(), nullptr);
 	this->frameSize = refSize;
 
 	if(this->framePictureArray)
 		delete[] this->framePictureArray;
-	this->framePictureArray = new Vector3[refSize.width * refSize.height];
+	this->framePictureArray = new Vector3S[refSize.width * refSize.height];
 }
 
 void RayTraceRenderer::RenderFrame(const SceneManager &refSceneMgr, const Camera &camera)
 {
 	uint16 nLinesPerTask;
 	uint32 i;
-	Matrix4x4 frustum;
+	Matrix4S frustum;
 	Map<Light *, SceneNode *> lights;
 
 	frustum = (camera.GetPerspectiveMatrix() * camera.GetViewMatrix()).Inverse();
@@ -95,16 +95,17 @@ void RayTraceRenderer::RenderFrame(const SceneManager &refSceneMgr, const Camera
 	//update texture
 	this->pFrame->UpdateRGB(0, 0, this->frameSize.width, this->frameSize.height, this->framePictureArray);
 
-	FileOutputStream fos(Path("/home/amir/Desktop/blub.ppm"));
+	FileOutputStream fos(Path("blub.ppm"));
+	DataWriter writer(true, fos);
 	fos << "P6" << endl << this->frameSize.width << " " << this->frameSize.height << endl << "255" << endl;
 	for(int y = this->frameSize.height-1; y >= 0; y--)
 	{
 		for(int x = 0; x < this->frameSize.width; x++)
 		{
 			int i = y * this->frameSize.width + x;
-			fos.WriteByte(static_cast<byte>(this->framePictureArray[i].z * 255));
-			fos.WriteByte(static_cast<byte>(this->framePictureArray[i].y * 255));
-			fos.WriteByte(static_cast<byte>(this->framePictureArray[i].x * 255));
+			writer.WriteByte(static_cast<byte>(this->framePictureArray[i].z * 255));
+			writer.WriteByte(static_cast<byte>(this->framePictureArray[i].y * 255));
+			writer.WriteByte(static_cast<byte>(this->framePictureArray[i].x * 255));
 		}
 	}
 
@@ -119,17 +120,17 @@ void RayTraceRenderer::RenderFrame(const SceneManager &refSceneMgr, const Camera
 }
 
 //Private methods
-vec4f32 RayTraceRenderer::ComputeLight(const Ray &refRay, const Light &refLight, const vec4f32 &refNormal)
+Vector4S RayTraceRenderer::ComputeLight(const Ray &refRay, const Light &refLight, const Vector4S &refNormal)
 {
 	float32 attenuation, angle;
-	vec4f32 dirToLight, diffuse, specular;
+	Vector4S dirToLight, diffuse, specular;
 
 	//Blinn-Phong shading model
 
 	//computations based on light type
 	if(refLight.type == ELightType::Directional)
 	{
-		dirToLight = vec4f32(-refLight.direction, 0).Normalize();
+		dirToLight = Vector4S(-refLight.direction, 0).Normalized();
 
 		attenuation = 1.0f; //no attenuation over distance
 	}
@@ -137,9 +138,9 @@ vec4f32 RayTraceRenderer::ComputeLight(const Ray &refRay, const Light &refLight,
 	{
 		float32 distance;
 
-		distance = (vec4f32(refLight.position, 1) - refRay.end).Length();
+		distance = (Vector4S(refLight.position, 1) - refRay.end).Length();
 
-		dirToLight = (vec4f32(refLight.position, 1) - refRay.end).Normalize();
+		dirToLight = (Vector4S(refLight.position, 1) - refRay.end).Normalized();
 		attenuation = 1.0f / (distance * distance); //amount of light diminishes with square of distance
 
 		if(refLight.type == ELightType::Spot)
@@ -148,21 +149,21 @@ vec4f32 RayTraceRenderer::ComputeLight(const Ray &refRay, const Light &refLight,
 
 			openingAngle = (float32)cos(Radian(refLight.openingAngle).value);
 
-			lightAngle = Dot(dirToLight, vec4f32(-refLight.direction, 0).Normalize());
+			lightAngle = dirToLight.Dot(Vector4S(-refLight.direction, 0).Normalized());
 			delta = (float32)cos(Radian(refLight.innerConeAngle).value) - openingAngle;
 			intensity = (lightAngle - openingAngle) / delta;
-			intensity = CLAMP(intensity, 0, 1);
+			intensity = Clamp(intensity, 0.0f, 1.0f);
 
 			attenuation *= intensity;
 		}
 	}
 
 	//compute angle between normal and light direction (this equals the cosine in this case, because input vectors are normalized)
-	angle = Dot(refNormal, dirToLight);
-	angle = MAX(angle, 0); //if light is behind face (angle < 0), don't enlight
+	angle = refNormal.Dot(dirToLight);
+	angle = Max(angle, 0.0f); //if light is behind face (angle < 0), don't enlight
 
 	//diffuse light
-	diffuse = angle * vec4f32(refLight.color, 1);
+	diffuse = angle * Vector4S(refLight.color, 1);
 
 	/*
 	float32 angle2, specularIntensity;
@@ -185,9 +186,9 @@ vec4f32 RayTraceRenderer::ComputeLight(const Ray &refRay, const Light &refLight,
 	return (diffuse + specular) * refLight.power * attenuation;
 }
 
-vec4f32 RayTraceRenderer::ComputeLights(const Ray &refRay, const vec4f32 &refNormal, const Map<Light *, SceneNode *> &refLights, const SceneManager &refSceneMgr)
+Vector4S RayTraceRenderer::ComputeLights(const Ray &refRay, const Vector4S &refNormal, const Map<Light *, SceneNode *> &refLights, const SceneManager &refSceneMgr)
 {
-	vec4f32 combinedLight;
+	Vector4S combinedLight;
 
 	combinedLight.w = 1;
 
@@ -196,12 +197,12 @@ vec4f32 RayTraceRenderer::ComputeLights(const Ray &refRay, const vec4f32 &refNor
 		combinedLight += this->ComputeLight(refRay, *refKV.key, refNormal);
 	}
 
-	return vec4f32(refSceneMgr.ambientLight, 0) + combinedLight;
+	return Vector4S(refSceneMgr.ambientLight, 0) + combinedLight;
 }
 
-Vector3 RayTraceRenderer::ComputeShading(const Ray &refRay, const Map<Light *, SceneNode *> &refLights, const SceneManager &refSceneMgr)
+Vector3S RayTraceRenderer::ComputeShading(const Ray &refRay, const Map<Light *, SceneNode *> &refLights, const SceneManager &refSceneMgr)
 {
-	vec4f32 normal, materialColor, outColor;
+	Vector4S normal, materialColor, outColor;
 
 	//mesh
 	const Mesh::Vertex *const& refpVertices = refRay.pMesh->GetVertices();
@@ -211,12 +212,12 @@ Vector3 RayTraceRenderer::ComputeShading(const Ray &refRay, const Map<Light *, S
 	const Mesh::Vertex &refV2 = refpVertices[refRay.faceIndex+2];
 
 	//compute normal
-	normal = refRay.normal.Normalize();
+	normal = refRay.normal.Normalized();
 
 	//get material diffuseColor
 	if(refRay.pMaterial)
 	{
-		materialColor = vec4f32(refRay.pMaterial->diffuseColor, 1);
+		materialColor = Vector4S(refRay.pMaterial->diffuseColor, 1);
 	}
 
 
@@ -226,16 +227,16 @@ Vector3 RayTraceRenderer::ComputeShading(const Ray &refRay, const Map<Light *, S
 	return Vector3(outColor.x, outColor.y, outColor.z);
 }
 
-Vector3 RayTraceRenderer::ComputeSkyColor()
+Vector3S RayTraceRenderer::ComputeSkyColor()
 {
-	return Vector3();
+	return Vector3S();
 }
 
-void RayTraceRenderer::RenderLines(uint16 y, uint16 yMax, const Matrix4x4 &frustum, const Map<Light *, SceneNode *> &refLights, const SceneManager &refSceneMgr, const Camera &refCamera)
+void RayTraceRenderer::RenderLines(uint16 y, uint16 yMax, const Matrix4S &frustum, const Map<Light *, SceneNode *> &refLights, const SceneManager &refSceneMgr, const Camera &refCamera)
 {
 	uint16 x;
 	uint32 index;
-	vec4f32 start, end, dir;
+	Vector4S start, end, dir;
 
 	for(; y < yMax; y++)
 	{
@@ -255,9 +256,9 @@ void RayTraceRenderer::RenderLines(uint16 y, uint16 yMax, const Matrix4x4 &frust
 			start = frustum * start;
 			end = frustum * end;
 
-			dir = (end / end.w - start / start.w).Normalize();
+			dir = (end / end.w - start / start.w).Normalized();
 
-			this->ShootRay(*refSceneMgr.GetRootNode(), Matrix4x4::Identity(), vec4f32(refCamera.position, 1), dir, ray);
+			this->ShootRay(*refSceneMgr.GetRootNode(), Matrix4S::Identity(), Vector4S(refCamera.position, 1), dir, ray);
 
 			index = y * this->frameSize.width + x;
 			if(ray.Hit())
@@ -299,11 +300,11 @@ void RayTraceRenderer::SetupPlane()
 	this->pPlaneInputState->AddVertexBuffer(this->pPlaneVertexBuffer, inputLayout);
 }
 
-void RayTraceRenderer::ShootRay(const Mesh &refMesh, const Material *pMaterial, const Matrix4x4 &refM, const vec4f32 &refOrigin, const vec4f32 &refDir, Ray &refRay)
+void RayTraceRenderer::ShootRay(const Mesh &refMesh, const Material *pMaterial, const Matrix4S &refM, const Vector4S &refOrigin, const Vector4S &refDir, Ray &refRay)
 {
 	uint16 *pIndices;
 	uint32 i;
-	vec4f32 intersectionPoint, p0, p1, p2;//, endPoint;
+	Vector4S intersectionPoint, p0, p1, p2;//, endPoint;
 	const Mesh::Vertex *pVertices;
 
 	pIndices = refMesh.GetIndices16();
@@ -314,15 +315,15 @@ void RayTraceRenderer::ShootRay(const Mesh &refMesh, const Material *pMaterial, 
 		const Mesh::Vertex &refV1 = pVertices[pIndices[i+1]];
 		const Mesh::Vertex &refV2 = pVertices[pIndices[i+2]];
 
-		p0 = refM * vec4f32(refV0.position, 1);
-		p1 = refM * vec4f32(refV1.position, 1);
-		p2 = refM * vec4f32(refV2.position, 1);
+		p0 = refM * Vector4S(refV0.position, 1);
+		p1 = refM * Vector4S(refV1.position, 1);
+		p2 = refM * Vector4S(refV2.position, 1);
 
 		if(IntersectRayTriangle(refOrigin, refDir, p0, p1, p2, intersectionPoint))
 		{
 			if(intersectionPoint.z < refRay.distance) //test the depth value
 			{
-				Matrix3x3 normalMatrix;
+				Matrix3S normalMatrix;
 
 				//pre computations
 				normalMatrix = refM.Inverse().Transpose();
@@ -334,16 +335,16 @@ void RayTraceRenderer::ShootRay(const Mesh &refMesh, const Material *pMaterial, 
 				refRay.faceIndex = i;
 				refRay.intersectionPoint = intersectionPoint;
 				refRay.end = intersectionPoint.x * p0 + intersectionPoint.y * p1 + intersectionPoint.z * p2;
-				refRay.normal = this->Transform(intersectionPoint, vec4f32(refV0.normal, 0), vec4f32(refV1.normal, 0), vec4f32(refV2.normal, 0), normalMatrix);
+				refRay.normal = this->Transform(intersectionPoint, Vector4S(refV0.normal, 0), Vector4S(refV1.normal, 0), Vector4S(refV2.normal, 0), normalMatrix);
 			}
 		}
 	}
 }
 
-void RayTraceRenderer::ShootRay(const SceneNode &refNode, const Matrix4x4 &refM, const vec4f32 &refOrigin, const vec4f32 &refDir, Ray &refRay)
+void RayTraceRenderer::ShootRay(const SceneNode &refNode, const Matrix4S &refM, const Vector4S &refOrigin, const Vector4S &refDir, Ray &refRay)
 {
-	AxisAlignedBox bbox;
-	Matrix4x4 transformation;
+	AxisAlignedBoxS bbox;
+	Matrix4S transformation;
 
 	transformation = refNode.GetTransformation() * refM;
 

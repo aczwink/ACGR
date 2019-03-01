@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2017-2019 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of ACGR.
  *
@@ -23,15 +23,15 @@
 #include "../Internal/ShaderCompiler.hpp"
 #include "Passes/ShadowPass.hpp"
 //Namespaces
-using namespace ACStdLib;
-using namespace ACStdLib::Math;
-using namespace ACStdLib::Rendering;
+using namespace StdXX;
+using namespace StdXX::Math;
+using namespace StdXX::Rendering;
 
 namespace ACGR
 {
 	struct SLightInfo
 	{
-		Matrix4x4 lightVP;
+		Matrix4S lightVP;
 		Texture2D *pShadowMap;
 	};
 
@@ -54,7 +54,7 @@ namespace ACGR
 
 		//Methods
 		void EnableDebugMode(bool state);
-		void InformDeviceStateChanged(const ACStdLib::Size &size);
+		void InformDeviceStateChanged(const StdXX::Math::SizeS &size);
 		void RenderFrame(const SceneManager &sceneManager, const Camera &camera);
 
 		//Inline
@@ -70,13 +70,13 @@ namespace ACGR
 
 	private:
 		//Members
-		Size deviceSize;
+		SizeS deviceSize;
 		DeviceContext &refDeviceContext;
-		Matrix4x4 view;
-		Matrix4x4 projection;
-		Matrix4x4 VP;
+		Matrix4S view;
+		Matrix4S projection;
+		Matrix4S VP;
 		ShaderCompiler shaderCompiler;
-		FiniteSet<const Light *> activeLights;
+		BinaryTreeSet<const Light *> activeLights;
 		Map<const Light *, SLightInfo> additionalLightInfo;
 		ShadowPass shadowPass;
 		InputLayout meshInputLayout;
@@ -107,7 +107,7 @@ namespace ACGR
 		bool debugMode;
 		struct
 		{
-			ShaderProgram *pNormalsProgram;
+			ShaderProgram *normalsProgram;
 		} debug;
 
 		//Methods
@@ -115,10 +115,10 @@ namespace ACGR
 		void EnableLight(const Light *light, bool state = true);
 		void EndRendering();
 		void InitPrograms();
-		void Render(const Mesh *pMesh, const Matrix4x4 &model);
-		void Render(const SceneNode &refNode, const Matrix4x4 &refM);
+		void Render(const Mesh *pMesh, const Matrix4S &model);
+		void Render(const SceneNode &refNode, const Matrix4S &refM);
 		void RenderMesh(const Mesh *pMesh);
-		void RenderShadowMap(const Light *pLight, const SceneNode &refNode, const Matrix4x4 &refM);
+		void RenderShadowMap(const Light *pLight, const SceneNode &refNode, const Matrix4S &refM);
 		void SetMaterial(const Material *material);
 		void SetTexture(const Texture *pTexture);
 		void SetupFrameBuffer();
@@ -127,7 +127,7 @@ namespace ACGR
 		void SetupSkyBox();
 
 		//Inline
-		inline void Render(const Entity &refEntity, const Matrix4x4 &refM)
+		inline void Render(const Entity &refEntity, const Matrix4S &refM)
 		{
 			if(refEntity.GetMaterial())
 				this->SetMaterial(refEntity.GetMaterial());

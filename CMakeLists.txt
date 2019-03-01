@@ -1,23 +1,16 @@
 cmake_minimum_required(VERSION 3.6)
 project(ACGR)
+find_package(XP-CMake REQUIRED) #we need advanced cmake modules
 
-set(CMAKE_CXX_STANDARD 14) #for lambdas
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse4.1") #currently a requirement for fast ray tracer
+set(CMAKE_CXX_STANDARD 17)
 
-#debug or release
-if(CMAKE_BUILD_TYPE MATCHES Debug)
-    add_definitions(-D_DEBUG)
+XPC_AutoBuildType()
+XPC_OptForHost()
+XPC_SetCompileDefinitions()
 
-    set(CMAKE_DEBUG_POSTFIX "_d")
-elseif(CMAKE_BUILD_TYPE MATCHES Release)
-	#ok
-else()
-    message(FATAL_ERROR "Unknown build type. Must be either 'Debug' or 'Release'")
-endif()
 
-#dependancies
-find_library(ACSTDLIB_LIBRARY NAMES ACStdLib_d)
-find_library(ACSTDLIBSTATIC_LIBRARY NAMES ACStdLibStatic_d)
+#dependencies
+find_package(StdPlusPlus REQUIRED)
 
 #collect files
 add_subdirectory(include)
@@ -33,7 +26,8 @@ target_include_directories(ACGR PUBLIC
 
 add_executable(demo ${DEMO_SOURCE_FILES})
 target_include_directories(demo PUBLIC "include")
-target_link_libraries(demo ${ACSTDLIB_LIBRARY} ${ACSTDLIBSTATIC_LIBRARY} ACGR)
+target_link_libraries(ACGR Std++)
+target_link_libraries(demo Std++ Std++Static ACGR)
 
 #---INSTALLATION---
 

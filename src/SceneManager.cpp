@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2017-2019 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of ACGR.
  *
@@ -19,8 +19,8 @@
 //Class header
 #include <ACGR/SceneManager.hpp>
 //Namespaces
-using namespace ACStdLib;
-using namespace ACStdLib::Math;
+using namespace StdXX;
+using namespace StdXX::Math;
 using namespace ACGR;
 
 //Constructor
@@ -36,7 +36,7 @@ SceneManager::~SceneManager()
 }
 
 //Public methods
-void SceneManager::SetSkyBox(const ByteString &refResource)
+void SceneManager::SetSkyBox(const String &refResource)
 {
 	NOT_IMPLEMENTED_ERROR;
 

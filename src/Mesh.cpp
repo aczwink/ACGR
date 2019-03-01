@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2017-2019 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of ACGR.
  *
@@ -19,8 +19,8 @@
 //Class Header
 #include <ACGR/Mesh.hpp>
 //Namespaces
-using namespace ACStdLib;
-using namespace ACStdLib::Math;
+using namespace StdXX;
+using namespace StdXX::Math;
 using namespace ACGR;
 
 //Local functions
@@ -94,7 +94,7 @@ void Mesh::SetVertices(uint32 nVertices, const Vertex *pVertices)
 //Protected methods
 void Mesh::ComputeBBox()
 {
-	this->bbox = AxisAlignedBox();
+	this->bbox = AxisAlignedBoxS();
 
 	for(uint32 i = 0; i < nVertices; i++)
 		this->bbox.Merge(pVertices[i].position);
@@ -125,19 +125,19 @@ void Mesh::ComputeBBox()
 void Mesh::ComputeNormals()
 {
 	uint32 i;
-	Vector3 e1, e2;
-	FixedArray<Vector3> faceNormals(nIndices / 3);
+	Vector3S e1, e2;
+	FixedArray<Vector3S> faceNormals(nIndices / 3);
 
 	//reset normals
 	for(i = 0; i < nVertices; i++)
-		pVertices[i].normal = Vector3();
+		pVertices[i].normal = Vector3S();
 
 	//compute
 	for(i = 0; i < nIndices; i += 3)
 	{
 		e1 = pVertices[this->pIndices16[i + 1]].position - pVertices[this->pIndices16[i]].position;
 		e2 = pVertices[this->pIndices16[i + 2]].position - pVertices[this->pIndices16[i]].position;
-		faceNormals[i / 3] = Cross(e1, e2).Normalize();
+		faceNormals[i / 3] = e1.Cross(e2).Normalize();
 
 		pVertices[this->pIndices16[i+0]].normal += faceNormals[i / 3];
 		pVertices[this->pIndices16[i+1]].normal += faceNormals[i / 3];
