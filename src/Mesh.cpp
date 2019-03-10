@@ -26,11 +26,11 @@ using namespace ACGR;
 //Local functions
 static uint16 SubdivEdge(Mesh::Vertex *vertices, uint16 i0, uint16 i1, uint16 &currentVertexIndex, Map<uint64, uint16> &edgeIndexMap)
 {
-	auto it = edgeIndexMap.Find(MAKE64(i0, i1));
+	auto it = edgeIndexMap.Find(Unsigned<uint64>::Concat(i0, i1));
 	if(it != edgeIndexMap.end())
 		return (*it).value;
 
-	auto it2 = edgeIndexMap.Find(MAKE64(i1, i0));
+	auto it2 = edgeIndexMap.Find(Unsigned<uint64>::Concat(i1, i0));
 	if(it2 != edgeIndexMap.end())
 		return (*it2).value;
 
@@ -38,7 +38,7 @@ static uint16 SubdivEdge(Mesh::Vertex *vertices, uint16 i0, uint16 i1, uint16 &c
 	Mesh::Vertex &v1 = vertices[i1];
 
 	//add vertex
-	edgeIndexMap[MAKE64(i0, i1)] = currentVertexIndex;
+	edgeIndexMap[Unsigned<uint64>::Concat(i0, i1)] = currentVertexIndex;
 	Mesh::Vertex &v_new = vertices[currentVertexIndex];
 
 	v_new.position = 0.5f * (v0.position + v1.position);
