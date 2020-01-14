@@ -24,7 +24,7 @@ int32 Main(const String& programName, const FixedArray<String>& args)
 	StandardEventQueue eventQueue;
     DemoMainWindow *mainWindow = new DemoMainWindow(eventQueue);
 
-    mainWindow->Maximize();
+	mainWindow->Maximize();
 	mainWindow->Show();
 
 	while(eventQueue.ProcessEvents(false))

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2017-2020 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of ACGR.
  *
@@ -25,7 +25,7 @@ using namespace StdXX::XML;
 void ReadScene(InputStream &inputStream, SceneManager &sceneManager);
 
 //Constructor
-DisplayWidget::DisplayWidget() : RenderTargetWidget()
+DisplayWidget::DisplayWidget() : RenderTargetWidget(WidgetFrameBufferSetup())
 {
 	this->haveRenderedImage = false;
 }
@@ -124,7 +124,7 @@ Vector3S DisplayWidget::ParseVec3(const String& string)
 
 void DisplayWidget::ReadScene(InputStream &inputStream)
 {
-	XML::Document *doc = XML::Document::Parse(inputStream);
+	UniquePointer<XML::Document> doc = XML::Document::Parse(inputStream);
 
 	XML::Element &scene = doc->GetRootElement();
 	if(scene.HasAttribute("ambientLight"))
@@ -134,8 +134,6 @@ void DisplayWidget::ReadScene(InputStream &inputStream)
 		this->sceneMgr.SetSkyBox(scene.GetAttribute("skybox"));
 
 	this->sceneMgr.SetRootNode(this->ReadSceneNode(scene));
-
-	delete doc;
 }
 
 SceneNode *DisplayWidget::ReadSceneNode(const XML::Element &element)
@@ -254,7 +252,7 @@ void DisplayWidget::UpdateScene()
 }
 
 //Eventhandlers
-void DisplayWidget::OnPaint(UI::Event& event)
+void DisplayWidget::OnPaint(PaintEvent& event)
 {
 	this->UpdateScene();
 

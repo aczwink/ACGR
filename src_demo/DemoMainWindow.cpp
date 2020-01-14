@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2017-2020 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of ACGR.
  *
@@ -22,7 +22,7 @@
 //Constructor
 DemoMainWindow::DemoMainWindow(EventQueue& eventQueue) : MainAppWindow(eventQueue)
 {
-    this->SetTitle("AC3D Demo");
+    this->SetTitle(u8"AC3D Demo");
 
 	this->SetupChildren();
 }

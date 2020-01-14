@@ -66,7 +66,7 @@ private:
 	Map<String, Mesh *> meshes;
 
 	//Eventhandlers
-	void OnPaint(UI::Event& event) override;
+	void OnPaint(PaintEvent& event) override;
 	void OnRealized() override;
 	void OnResized() override;
 

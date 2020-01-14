@@ -51,14 +51,16 @@ RayTraceRenderer::~RayTraceRenderer()
 void RayTraceRenderer::EnableDebugMode(bool state)
 {
 }
-void RayTraceRenderer::InformDeviceStateChanged(const StdXX::Math::SizeS &refSize)
+void RayTraceRenderer::InformDeviceStateChanged(const StdXX::Math::SizeS& size)
 {
-	this->pFrame->AllocateRGB(refSize.Cast<uint16>(), nullptr);
-	this->frameSize = refSize;
+	const Size<uint16> integralSize = size.Cast<uint16>();
+
+	this->pFrame->AllocateRGB(integralSize, nullptr);
+	this->frameSize = size;
 
 	if(this->framePictureArray)
 		delete[] this->framePictureArray;
-	this->framePictureArray = new Vector3S[refSize.width * refSize.height];
+	this->framePictureArray = new Vector3S[integralSize.width * integralSize.height];
 }
 
 void RayTraceRenderer::RenderFrame(const SceneManager &refSceneMgr, const Camera &camera)
@@ -97,7 +99,9 @@ void RayTraceRenderer::RenderFrame(const SceneManager &refSceneMgr, const Camera
 
 	FileOutputStream fos(Path("blub.ppm"));
 	DataWriter writer(true, fos);
-	fos << "P6" << endl << this->frameSize.width << " " << this->frameSize.height << endl << "255" << endl;
+	TextWriter textWriter(fos, TextCodecType::ASCII);
+
+	textWriter << u8"P6" << endl << this->frameSize.width << " " << this->frameSize.height << endl << "255" << endl;
 	for(int y = this->frameSize.height-1; y >= 0; y--)
 	{
 		for(int x = 0; x < this->frameSize.width; x++)
