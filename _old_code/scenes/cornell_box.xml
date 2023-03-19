@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Scene ambientLight="1, 1, 1" skybox="skybox">
+  <!--Cameras-->
+  <Camera direction="0, 0, -1" fovy="45°" />
+
+  <!--Lights-->
+  <Light type="directional" direction="0, 0, -1" color="0.8, 0.8, 0.8" power="1" />
+  
+  <!--Spheres-->
+  <Node translate="-4, 0.5, -15">
+    <Entity>Icosahedron</Entity>
+  </Node>
+  <Node translate="4, -0.5, -12">
+    <Entity>Icosahedron</Entity>
+  </Node>
+  
+  <!--Box-->
+  <!--Front (pos z), Back-->
+  <Node translate="0, 0, -1" scale="100, 100, 100" rotate_ypr="180, 0, 0">
+    <Entity material="metal">Plane</Entity>
+  </Node>
+  <Node translate="0, 0, -1" scale="100, 100, 100">
+    <Entity material="cornell_box_grey">Plane</Entity>
+  </Node>
+  
+  <!--Left, Right-->
+  <Node translate="0, 0, -0.2" scale="100, 100, 100" rotate_ypr="90, 0, 0">
+    <Entity material="cornell_box_red">Plane</Entity>
+  </Node>
+  <Node translate="0, 0, -0.2" scale="100, 100, 100" rotate_ypr="-90, 0, 0">
+    <Entity material="cornell_box_blue">Plane</Entity>
+  </Node>
+
+  <!--Bottom, Top-->
+  <Node translate="0, 0, -0.15" scale="100, 100, 100" rotate_ypr="0, -90, 0">
+    <Entity material="cornell_box_green">Plane</Entity>
+  </Node>
+  <Node translate="0, 0, -0.15" scale="100, 100, 100" rotate_ypr="0, 90, 0">
+    <Entity material="cornell_box_green">Plane</Entity>
+  </Node>
+</Scene>

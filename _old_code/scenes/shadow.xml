@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Scene skybox="skybox">
+  <!--Cameras-->
+  <Camera position="20, 15, 30" lookat="0, 0, 0" fovy="45°" />
+
+  <!--Lights-->
+  <Light type="spot" position="-20, 20, 10" lookat="0, 0, 0" color="1, 1, 1" power="1500" opening_angle="25°" inner_cone_angle="8°" />
+
+  <!--Floor-->
+  <Node scale="30, 30, 30" rotate_ypr="0, -90, 0">
+    <Entity material="metal">Plane</Entity>
+  </Node>
+
+  <!--Cube-->
+  <Node scale="4, 4, 4" translate="0, 0.5, 0.5">
+    <Entity material="marble">Box</Entity>
+  </Node>
+</Scene>

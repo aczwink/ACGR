@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Node>
+  <!--Cameras-->
+  <Camera position="20, 15, 30" lookat="0, 6, 0" fovy="45°" />
+  
+  <!--Lights-->
+  <Light type="directional" direction="0, -1, -0.5" color="0, 0, 1" power="5" />
+  <Light type="point" position="10, 2, 10" lookat="0, 0, 0" color="0, 1, 0" power="30" />
+  <Light type="spot" position="-20, 20, 10" lookat="0, 6, 0" color="1, 0, 0" power="3000" opening_angle="20°" inner_cone_angle="15°" />
+  
+  <!--Nanosuit-->
+  <Node>
+    <Entity>Helmet</Entity>
+    <Entity>Visor</Entity>
+    <Entity>Body</Entity>
+    <Entity>Arms</Entity>
+    <Entity>hands</Entity>
+    <Entity>Legs</Entity>
+  </Node>
+
+  <!--Floor-->
+  <Node scale="30, 30, 30" rotate_ypr="0, -90, 0">
+    <Entity material="metal">Plane</Entity>
+  </Node>
+
+  <!--Cube-->
+  <Node scale="4, 4, 4" translate="2.5, 0.5, 1">
+    <Entity material="marble">Box</Entity>
+  </Node>
+
+  <!--Grass-->
+  <Node scale="4, 4, 4" translate="2.5, 0.5, 1.55" rotate_ypr="0, 0, 0">
+    <Entity material="grass">Plane</Entity>
+  </Node>
+</Node>
